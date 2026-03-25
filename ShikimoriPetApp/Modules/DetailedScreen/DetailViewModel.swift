@@ -16,7 +16,7 @@ class DetailedViewModel{
     @Published var authorsRowData: [ListSectionView.RowData] = []
     @Published var relatedRowData: [ListSectionView.RowData] = []
     @Published var isLoading: Bool = false
-
+    
     private var cancellables = Set<AnyCancellable>()
     
     var userID: Int {
@@ -75,7 +75,7 @@ class DetailedViewModel{
         let rawValue = userRate.first?.status ?? ""
         return WatchingStatus(rawValue: rawValue) ?? .none
     }
-        //MARK: init
+    //MARK: init
     init(animeList: AnimeList) {
         self.animeList = animeList
         self.animeID = animeList.id
@@ -86,7 +86,7 @@ class DetailedViewModel{
     }
     
     var nextEpisode: String? {
-            return anime?.nextEpisodeAt
+        return anime?.nextEpisodeAt
         
     }
     var imageURL: URL? {
@@ -117,16 +117,16 @@ class DetailedViewModel{
         return details
     }
     var episodes: String {
-
-            let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
-            var total = anime?.episodes.map { "\($0)" } ?? "?"
+        
+        let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
+        var total = anime?.episodes.map { "\($0)" } ?? "?"
         if aired > total{
             total = "?"
         }
-            switch status {
-            case "Онгоинг": return "\(aired) / \(total)"
-            default: return total
-            }
+        switch status {
+        case "Онгоинг": return "\(aired) / \(total)"
+        default: return total
+        }
     }
     
     var kind: String {
@@ -190,7 +190,7 @@ class DetailedViewModel{
             currentScore: userRate.first?.score ?? 0,
             currentEpisodes: userRate.first?.episodes ?? 0,
             onSave: { [weak self] status, episodes, score in
-               self?.updateFullRate(status: status, score: score, episodes: episodes)
+                self?.updateFullRate(status: status, score: score, episodes: episodes)
             }
             
         )
@@ -206,38 +206,38 @@ class DetailedViewModel{
             updateRate(status: status, score: score, episodes: episodes)
         }
     }
-
+    
     private func createRate(status: WatchingStatus, score: Int, episodes: Int) {
         let body = makeCreateBody(status: status, score: score, episodes: episodes)
-        NetworkManager.shared.createUserRate(endpoint: .createUserRate, body: body)
+        NetworkManager.shared.request(endpoint: .createUserRate, method: .post, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (newRate: AnimeUserRate) in
                 self?.userRate = [newRate]
             })
             .store(in: &cancellables)
     }
-
+    
     private func deleteRate() {
         guard let rateID = userRate.first?.id else { return }
-        NetworkManager.shared.delete(endpoint: .deleteUserRate(linkID: rateID))
+        NetworkManager.shared.requestVoid(endpoint: .deleteUserRate(linkID: rateID), method: .delete)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] in
                 self?.userRate = []
             })
             .store(in: &cancellables)
     }
-
+    
     private func updateRate(status: WatchingStatus, score: Int, episodes: Int) {
         guard let rateID = userRate.first?.id else { return }
         let body = makeUpdateBody(status: status, score: score, episodes: episodes)
-        NetworkManager.shared.update(endpoint: .userRateUpdate(linkID: rateID), body: body)
+        NetworkManager.shared.request(endpoint: .userRateUpdate(linkID: rateID), method: .put, body: body)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (updated: AnimeUserRate) in
                 self?.userRate = [updated]
             })
             .store(in: &cancellables)
     }
-
+    
     private func makeCreateBody(status: WatchingStatus, score: Int, episodes: Int) -> [String: Any] {
         return [
             "user_rate": [
@@ -260,14 +260,14 @@ class DetailedViewModel{
         ]
     }
     func loadData(){
-        NetworkManager.shared.fetch(endpoint: .animeDetails(id: animeID))
+        NetworkManager.shared.request(endpoint: .animeDetails(id: animeID), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$anime)
     }
     
     func loadCharacters(){
-        NetworkManager.shared.fetch(endpoint: .animeMainCharacters(id: animeID))
+        NetworkManager.shared.request(endpoint: .animeMainCharacters(id: animeID), method: .get)
             .map{(roles: [CharacterRole]) in
                 roles.filter{$0.roles.contains("Main")
                 }
@@ -276,60 +276,60 @@ class DetailedViewModel{
             .receive(on: DispatchQueue.main)
             .assign(to: &$characters)
     }
-        func loadScreenshots() {
-            NetworkManager.shared.fetch(endpoint: .screenshots(id: animeID))
-                .replaceError(with: [])
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$screenshots)
-        }
-        func loadAuthors() {
-            NetworkManager.shared.fetch(endpoint: .authors(id: animeID))
-                .map { (roles: [AuthorModel]) -> [ListSectionView.RowData] in
-                    let targetRoles: Set = ["Original Creator", "Chief Producer", "Chief Animation Director", "Director", "Writer"]
-                    var filtered = roles.filter { !targetRoles.isDisjoint(with: Set($0.roles)) }
-                    
-                    filtered.sort { first, second in
-                        let f = first.roles.contains("Original Creator")
-                        let s = second.roles.contains("Original Creator")
-                        return f && !s
-                    }
-                    
-                    return filtered.prefix(4).map {
-                        ListSectionView.RowData(
-                            title: $0.person?.russian ?? "",
-                            subtitle: $0.rolesRussian.joined(separator: ", "),
-                            imageUrl: $0.person?.image?.original,
-                            id: $0.person?.id
-                        )
-                    }
+    func loadScreenshots() {
+        NetworkManager.shared.request(endpoint: .screenshots(id: animeID), method: .get)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$screenshots)
+    }
+    func loadAuthors() {
+        NetworkManager.shared.request(endpoint: .authors(id: animeID), method: .get)
+            .map { (roles: [AuthorModel]) -> [ListSectionView.RowData] in
+                let targetRoles: Set = ["Original Creator", "Chief Producer", "Chief Animation Director", "Director", "Writer"]
+                var filtered = roles.filter { !targetRoles.isDisjoint(with: Set($0.roles)) }
+                
+                filtered.sort { first, second in
+                    let f = first.roles.contains("Original Creator")
+                    let s = second.roles.contains("Original Creator")
+                    return f && !s
                 }
-                .replaceError(with: [])
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$authorsRowData)
-        }
-        
-        func loadRelated() {
-            NetworkManager.shared.fetch(endpoint: .related(id: animeID))
-                .map { (related: [RelatedAnime]) -> [ListSectionView.RowData] in
-                    return related.prefix(4).compactMap { item in
-                        let content = item.anime ?? item.manga
-                        guard let content = content else { return nil }
-                        return ListSectionView.RowData(
-                            title: content.russian,
-                            subtitle: item.relationRussian,
-                            imageUrl: content.image?.original,
-                            id: content.id
-                        )
-                    }
+                
+                return filtered.map {
+                    ListSectionView.RowData(
+                        title: $0.person?.russian ?? "",
+                        subtitle: $0.rolesRussian.joined(separator: ", "),
+                        imageUrl: $0.person?.image?.original,
+                        id: $0.person?.id
+                    )
                 }
-                .replaceError(with: [])
-                .receive(on: DispatchQueue.main)
-                .assign(to: &$relatedRowData)
-        }
-        
+            }
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$authorsRowData)
+    }
+    
+    func loadRelated() {
+        NetworkManager.shared.request(endpoint: .related(id: animeID), method: .get)
+            .map { (related: [RelatedAnime]) -> [ListSectionView.RowData] in
+                return related.compactMap { item in
+                    let content = item.anime ?? item.manga
+                    guard let content = content else { return nil }
+                    return ListSectionView.RowData(
+                        title: content.russian,
+                        subtitle: item.relationRussian,
+                        imageUrl: content.image?.original,
+                        id: content.id
+                    )
+                }
+            }
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$relatedRowData)
+    }
+    
     func loadUserRate() {
         isLoading = true
-        NetworkManager.shared.fetch(endpoint: .checkUserRates(userID: userID, targetID: animeID))
+        NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: animeID), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (rates: [AnimeUserRate]) in
@@ -338,5 +338,15 @@ class DetailedViewModel{
             }
             .store(in: &cancellables)
     }
-
+    func favorites(){
+        NetworkManager.shared.requestVoid(endpoint: .favorites(id: animeID), method: .post)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] in
+                print("Добавлено в избранное")
+            })
+            .store(in: &cancellables)
+    }
+    func loadFavorites(){
+        
+    }
 }

@@ -207,7 +207,7 @@ class AuthManager {
 
     
     private func whoAmI() {
-            NetworkManager.shared.fetch(endpoint: .whoami)
+        NetworkManager.shared.request(endpoint: .whoami, method: .get)
                 .receive(on: DispatchQueue.main)
                 .sink(receiveCompletion: { completion in
                     switch completion {

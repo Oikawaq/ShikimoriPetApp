@@ -21,6 +21,9 @@ enum ShikimoriEndpoint {
     case userRateUpdate(linkID: Int)
     case deleteUserRate(linkID: Int)
     case createUserRate
+    case favorites(id: Int)
+    case loadFavourites(id: Int)
+    case loadUserFriends(id: Int,limit: Int)
     var url: URL? {
         var components = URLComponents(string: "https://shikimori.io/api")
         switch self {
@@ -60,7 +63,16 @@ enum ShikimoriEndpoint {
             components?.path += "/v2/user_rates/\(linkID)"
         case .createUserRate:
             components?.path += "/v2/user_rates/"
-          
+        case .favorites(let id):
+            components?.path += "/favorites/Anime/\(id)"
+        case .loadFavourites(let id):
+            components?.path += "/users/\(id)/favourites/"
+            
+        case .loadUserFriends(let id, let limit):
+            components?.path += "/users/\(id)/friends"
+            components?.queryItems = [
+                URLQueryItem(name: "limit", value: "\(limit)")
+            ]
         }
         return components?.url
     }

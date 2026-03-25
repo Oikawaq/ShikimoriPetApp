@@ -35,7 +35,7 @@ final class ListSectionView: UIView {
     func configure(with data: [RowData]) {
         mainStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        data.enumerated().forEach { index, item in
+        data.enumerated().prefix(4).forEach { index, item in
             let row = RowView(
                 name: item.title,
                 role: item.subtitle,

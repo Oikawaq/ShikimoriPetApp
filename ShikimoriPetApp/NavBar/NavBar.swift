@@ -8,7 +8,7 @@
 import UIKit
 
 class TabBarController: UITabBarController {
-
+    let userId = UserDefaults.standard.integer(forKey: "current_user_id")
     override func viewDidLoad() {
         super.viewDidLoad()
         setupVCs()
@@ -17,11 +17,10 @@ class TabBarController: UITabBarController {
     }
     
     private func setupVCs() {
-        
         let mainVC = MainViewController()
         let mainNav = UINavigationController(rootViewController: mainVC)
         setupNavItems(vc: mainVC, title: TabBarConstants.mainPageVC, image: "house")
-        let vm = ProfileViewModel()
+        let vm = ProfileViewModel(userId: userId)
         let profile = ProfileViewController(viewModel: vm)
         let profileNav = UINavigationController(rootViewController: profile)
         setupNavItems(vc: profile, title: TabBarConstants.profileVC, image: "person.circle")

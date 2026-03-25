@@ -27,7 +27,7 @@ class MainViewModel {
     }
     
     func loadAnimeList(currentPage: Int) {
-        NetworkManager.shared.fetch(endpoint: .animeList(page: currentPage, limit: 20))
+        NetworkManager.shared.request(endpoint: .animeList(page: currentPage, limit: 20), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: &$anime)

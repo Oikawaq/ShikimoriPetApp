@@ -24,7 +24,7 @@ class SettingsView: UIView {
         let button = UIButton()
         button.setTitle(L10n.Logout.logout, for: .normal)
         button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .lightGray
+        button.backgroundColor = .basalt
         button.layer.cornerRadius = 10
         return button
     }()
@@ -32,7 +32,7 @@ class SettingsView: UIView {
         let button = UIButton()
         button.setTitle(L10n.Settings.changeImage, for: .normal)
         button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .lightGray
+        button.backgroundColor = .basalt
         button.layer.cornerRadius = 10
         return button
     }()
@@ -40,7 +40,7 @@ class SettingsView: UIView {
         let button = UIButton()
         button.setTitle(L10n.Settings.changeUserName, for: .normal)
         button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .lightGray
+        button.backgroundColor = .basalt
         button.layer.cornerRadius = 10
         return button
     }()

@@ -29,7 +29,13 @@ final class DetailView: UIView {
         label.numberOfLines = 0
         return label
     }()
-    
+    let favoritesButton: UIButton = {
+        let button = UIButton()
+        let image = UIImage(systemName: "star")
+        button.setImage(image, for: .normal)
+        button.tintColor = .systemGray2
+        return button
+    }()
     let ratingBlock = RatingBlockView()
     
     private let infortmationContainer = ContainerView(title: "Информация")
@@ -213,7 +219,9 @@ final class DetailView: UIView {
             
         ].forEach { stackView.addArrangedSubview($0) }
         posterImageContainer.addSubview(posterImageView)
+        posterImageContainer.addSubview(favoritesButton)
         studioContainer.addSubview(studioImage)
+        
     }
     
     //MARK: setupContraints
@@ -252,6 +260,11 @@ final class DetailView: UIView {
         }
         userRateStatusButton.snp.makeConstraints { make in
             make.height.equalTo(50)
+        }
+        favoritesButton.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(16)
+            make.left.equalTo(posterImageView.snp.right).offset(16)
+            make.trailing.equalToSuperview().inset(16)
         }
     }
 }

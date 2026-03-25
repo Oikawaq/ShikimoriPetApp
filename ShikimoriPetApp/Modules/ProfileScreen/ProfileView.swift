@@ -6,7 +6,18 @@ import SnapKit
 class ProfileView: UIView {
 
     // MARK: - UIComponents
-    
+    private let scrollView = UIScrollView()
+    private let contentStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        return stack
+    }()
+    private let headerBlock: UIView = {
+        let view = UIView()
+        view.backgroundColor = .chalkWhite
+        return view
+    }()
      let profileImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(systemName: "person.fill")
@@ -15,34 +26,18 @@ class ProfileView: UIView {
          imageView.layer.cornerRadius = 8
         return imageView
     }()
+
+    lazy var userName = createLabel(title: "", size: 20)
+    lazy var userAge = createLabel(title: "")
+    let friendsContainer = ContainerView(title: "Друзья")
     
-    let userName: UILabel = {
-        let label = UILabel()
-        label.text = "User Name"
-        label.font = .systemFont(ofSize: 20, weight: .semibold)
-        return label
-    }()
-    
-    let userAge: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.isUserInteractionEnabled = true
-//        let interaction = UIContextMenuInteraction(delegate: self)
-//        label.addInteraction(interaction)
-        return label
-    }()
-    
-    let anime: UILabel = {
-        let label = UILabel()
-        label.text = "Аниме"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        return label
-    }()
-    let manga: UILabel = {
-        let label = UILabel()
-        label.text = "Манга"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        return label
+    let friendsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.register(FriendsCell.self, forCellWithReuseIdentifier: FriendsCell.identifier)
+        collectionView.backgroundColor = .chalkWhite
+        return collectionView
     }()
     
     
@@ -61,39 +56,51 @@ class ProfileView: UIView {
     // MARK: - Setup
     
     private func addViews(){
-        [profileImage, userName, userAge,anime,manga].forEach {
-            addSubview($0)
+        addSubview(scrollView)
+        scrollView.addSubview(contentStackView)
+        [headerBlock,friendsContainer, friendsCollectionView].forEach {
+            contentStackView.addArrangedSubview($0)
         }
+        headerBlock.addSubview(profileImage)
+        headerBlock.addSubview(userName)
+        headerBlock.addSubview(userAge)
     }
     
     private func setupConstraints(){
-        
-        profileImage.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(16)
-            make.left.equalToSuperview().offset(16)
-            make.width.height.equalTo(150)
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-        
+        contentStackView.snp.makeConstraints { make in
+            make.top.equalTo(scrollView)
+            make.leading.trailing.bottom.equalTo(scrollView).offset(16)
+            make.width.equalToSuperview().offset(-32)
+        }
+        headerBlock.snp.makeConstraints { make in
+            make.height.equalTo(200)
+        }
+        profileImage.snp.makeConstraints { make in
+            make.top.bottom.leading.equalTo(headerBlock)
+            make.width.equalTo(200)
+        }
         userName.snp.makeConstraints { make in
-            make.top.equalTo(profileImage.snp.top)
+            make.top.equalToSuperview()
             make.left.equalTo(profileImage.snp.right).offset(16)
             
         }
-        
         userAge.snp.makeConstraints { make in
             make.top.equalTo(userName.snp.bottom).offset(16)
             make.left.equalTo(profileImage.snp.right).offset(16)
         }
-        
-        anime.snp.makeConstraints { make in
-            make.top.equalTo(profileImage.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(16)
+        friendsCollectionView.snp.makeConstraints { make in
+            make.height.equalTo(80)
         }
-        
-        manga.snp.makeConstraints { make in
-            make.top.equalTo(anime.snp.bottom).offset(16)
-            make.left.equalToSuperview().offset(16)
-        }
+
     }
-    
+    private func createLabel(title: String, size : CGFloat = 16)-> UILabel{
+        let label = UILabel()
+        label.text = title
+        label.font = .systemFont(ofSize: size, weight: .regular)
+        label.textColor = .basalt
+        return label
+    }
 }

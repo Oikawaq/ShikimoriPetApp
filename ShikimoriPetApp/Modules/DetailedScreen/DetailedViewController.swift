@@ -41,7 +41,7 @@ final class DetailedViewController: UIViewController {
     private func loadAllData(){
         viewModel.loadUserRate()
         
-        let delay = 0.2
+        let delay = 0.3
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 1) { self.viewModel.loadData() }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 2) { self.viewModel.loadCharacters() }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 3) { self.viewModel.loadScreenshots() }
@@ -52,6 +52,7 @@ final class DetailedViewController: UIViewController {
     }
     private func setupButtonsAction(){
         detailView?.userRateStatusButton.addTarget(self, action: #selector(statusButtonTapped), for: .touchUpInside)
+        detailView?.favoritesButton.addTarget(self, action: #selector(favoritesTapped), for: .touchUpInside)
     }
     
     @objc func statusButtonTapped(){
@@ -66,6 +67,10 @@ final class DetailedViewController: UIViewController {
         present(vc, animated: true)
 
     }
+    @objc func favoritesTapped(){
+        viewModel.favorites()
+    }
+    
     //MARK: setupUI
     private func setupCollectionVIew(){
         detailView?.collectionView.dataSource = self

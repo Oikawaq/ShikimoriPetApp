@@ -24,5 +24,9 @@ struct Images: Codable{
     let x80: String
     let x48: String
     let x32: String
-    
+}
+struct UserFriendsModel: Codable{
+    let id: Int?
+    let nickname: String?
+    let image: Images?
 }

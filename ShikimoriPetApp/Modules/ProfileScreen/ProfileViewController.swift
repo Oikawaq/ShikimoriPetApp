@@ -33,9 +33,13 @@ class ProfileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        viewModel.loadUserData(id: userID)
+        loadAllData()
         setupBindings()
-        
+        setupCollectionView()
+    }
+    func loadAllData(){
+        viewModel.loadUserData()
+        viewModel.loadUserFriends()
     }
     private func setupBindings() {
         viewModel.$profileData
@@ -44,30 +48,63 @@ class ProfileViewController: UIViewController {
                 self?.updateUI()
             }
             .store(in: &cancellables)
+        viewModel.$userFriendsList
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self]_ in
+                self?.profileView?.friendsCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
     }
 
     private func updateUI(){
         guard let profileView else {return}
         profileView.userName.text = viewModel.username
         if let url = viewModel.imageURL {
-            profileView.profileImage.kf.setImage(with: url,
-                                                 options: [
-                                                     .backgroundDecode,
-                                                     .cacheOriginalImage
-                                                 ])
+            profileView.profileImage.kf.setImage(
+                with: url,
+                options: [
+                .backgroundDecode,
+                .cacheOriginalImage]
+            )
         }
-        profileView.userAge.text = viewModel.profileData?.fullYears?.description
+        profileView.userAge.text = viewModel.userAge
+        
     }
-   
+   private func setupCollectionView(){
+       profileView?.friendsCollectionView.delegate = self
+       profileView?.friendsCollectionView.dataSource = self
+    }
 
 }
-extension ProfileViewController: UIContextMenuInteractionDelegate {
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
-            // Здесь мы создаем "меню", которое покажет полную дату
-            let fullDate = "13 октября 2017 г." // Эту дату мы достали из HTML
-            let action = UIAction(title: fullDate, image: UIImage(systemName: "calendar")) { _ in }
-            return UIMenu(title: "Дата регистрации", children: [action])
+
+extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        return viewModel.userFriendsList.count
+       
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FriendsCell.identifier, for: indexPath) as? FriendsCell else {
+            return UICollectionViewCell()
         }
+        let friend = viewModel.userFriendsList[indexPath.item]
+        cell.configure(friends: friend)
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let id = viewModel.userFriendsList[indexPath.item].id else {return }
+        let vm = ProfileViewModel(userId: id)
+        let vc = ProfileViewController(viewModel: vm)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 80, height: 80)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        8
     }
 }

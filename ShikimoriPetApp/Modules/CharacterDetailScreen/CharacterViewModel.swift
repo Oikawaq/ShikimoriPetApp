@@ -45,7 +45,7 @@ class CharacterViewModel{
 }
     
     func loadData(){
-        NetworkManager.shared.fetch(endpoint: .characterDetails(id: characterID))
+        NetworkManager.shared.request(endpoint: .characterDetails(id: characterID), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$fullCharacterDetails)
