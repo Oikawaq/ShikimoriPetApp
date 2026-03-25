@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8A72F5EA92A0059B01B /* Kingfisher */; };
+		42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8AA2F5EA9360059B01B /* SnapKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		4284A64C2F0A8F20007DBB31 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -30,10 +35,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		4284A65D2F0A8F20007DBB31 /* Exceptions for "ShikimoriPetApp" folder in "ShikimoriPetApp" target */ = {
+		424661C92F45D9D60006C850 /* Exceptions for "ShikimoriPetApp" folder in "ShikimoriPetApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = 4284A6342F0A8F1E007DBB31 /* ShikimoriPetApp */;
 		};
@@ -43,7 +48,7 @@
 		4284A6372F0A8F1E007DBB31 /* ShikimoriPetApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				4284A65D2F0A8F20007DBB31 /* Exceptions for "ShikimoriPetApp" folder in "ShikimoriPetApp" target */,
+				424661C92F45D9D60006C850 /* Exceptions for "ShikimoriPetApp" folder in "ShikimoriPetApp" target */,
 			);
 			path = ShikimoriPetApp;
 			sourceTree = "<group>";
@@ -65,6 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */,
+				42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +132,8 @@
 			);
 			name = ShikimoriPetApp;
 			packageProductDependencies = (
+				42DAF8A72F5EA92A0059B01B /* Kingfisher */,
+				42DAF8AA2F5EA9360059B01B /* SnapKit */,
 			);
 			productName = ShikimoriPetApp;
 			productReference = 4284A6352F0A8F1E007DBB31 /* ShikimoriPetApp.app */;
@@ -184,7 +193,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					4284A6342F0A8F1E007DBB31 = {
 						CreatedOnToolsVersion = 26.0.1;
@@ -208,6 +217,10 @@
 			);
 			mainGroup = 4284A62C2F0A8F1E007DBB31;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				42DAF8A92F5EA9360059B01B /* XCRemoteSwiftPackageReference "SnapKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4284A6362F0A8F1E007DBB31 /* Products */;
 			projectDirPath = "";
@@ -290,10 +303,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShikimoriPetApp/Info.plist;
+				INFOPLIST_FILE = ShikimoriPetApp/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -321,10 +333,9 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShikimoriPetApp/Info.plist;
+				INFOPLIST_FILE = ShikimoriPetApp/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -402,6 +413,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -458,6 +470,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -583,6 +596,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.8.0;
+			};
+		};
+		42DAF8A92F5EA9360059B01B /* XCRemoteSwiftPackageReference "SnapKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SnapKit/SnapKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		42DAF8A72F5EA92A0059B01B /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		42DAF8AA2F5EA9360059B01B /* SnapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 42DAF8A92F5EA9360059B01B /* XCRemoteSwiftPackageReference "SnapKit" */;
+			productName = SnapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 4284A62D2F0A8F1E007DBB31 /* Project object */;
 }
