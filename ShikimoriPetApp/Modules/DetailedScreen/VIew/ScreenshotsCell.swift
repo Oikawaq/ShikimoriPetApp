@@ -3,8 +3,8 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-final class PhotoCell: UICollectionViewCell {
-    static let identifier = "PhotoCell"
+final class ScreenshotsCell: UICollectionViewCell {
+    static let identifier = "ScreenshotsCell"
     private let imageView = UIImageView()
     
     override init(frame: CGRect) {
@@ -20,11 +20,15 @@ final class PhotoCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with url: URL?) {
-        imageView.kf.setImage(with: url,
-                              options: [
-                                  .backgroundDecode,
-                                  .cacheOriginalImage
-                              ])
+    func configure(with url: String?) {
+        if let url = url{
+            let fullpath = URL(string: ("https://shikimori.io" + url))
+            imageView.kf.setImage(with: fullpath,
+                                  options: [
+                                      .backgroundDecode,
+                                      .cacheOriginalImage
+                                  ])
+        }
+        
     }
 }

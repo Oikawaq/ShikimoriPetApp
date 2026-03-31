@@ -39,7 +39,8 @@ class RateEditorVC: UIViewController {
         stepper.stepValue = 1
         stepper.minimumValue = 0
         stepper.maximumValue = Double(viewModel.maxEpisodes)
-        stepper.backgroundColor = .chalkWhite
+        stepper.backgroundColor = .basalt.withAlphaComponent(0.5)
+        
         stepper.layer.cornerRadius = 10
         stepper.value = Double(viewModel.currentEpisodes)
         return stepper
@@ -51,7 +52,7 @@ class RateEditorVC: UIViewController {
         stackView.distribution = .fillEqually
         return stackView
     }()
-        //MARK: lifecyckle
+        //MARK: lifecycle
     init(viewModel: RateEditorViewModel){
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)

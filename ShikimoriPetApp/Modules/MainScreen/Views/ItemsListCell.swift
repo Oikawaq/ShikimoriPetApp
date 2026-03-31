@@ -9,16 +9,15 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class CharactersCell: UICollectionViewCell {
+class ItemsListCell: UICollectionViewCell {
     
-    static let identifier: String = "CharacersCell"
+    static let identifier: String = "AnimeListCell"
     
     private let posterImageView: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 8
-        iv.backgroundColor = .basalt
         return iv
     }()
     
@@ -26,7 +25,6 @@ class CharactersCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.numberOfLines = 2
-        label.textColor = .label
         label.textColor = .basalt
         return label
     }()
@@ -45,20 +43,20 @@ class CharactersCell: UICollectionViewCell {
         
         posterImageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().multipliedBy(0.9)
+            make.height.equalTo(contentView.snp.height).multipliedBy(0.9)
         }
-        
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalTo(posterImageView.snp.bottom).offset(4)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.lessThanOrEqualToSuperview()
+            titleLabel.snp.makeConstraints { make in
+                make.top.equalTo(posterImageView.snp.bottom).offset(8)
+                make.leading.trailing.equalToSuperview().inset(4)
+                make.bottom.equalToSuperview().offset(-8)
+               
         }
-    }
+}
     
-    func configure(with characters: CharacterRole){
-        titleLabel.text = characters.character?.russian
+    func configure(with anime: ContentList){
+        titleLabel.text = anime.russian ?? anime.name
         
-        if let imageUrlString = characters.character?.image?.original,
+        if let imageUrlString = anime.image.original,
            let url = URL(string: "https://shikimori.io" + imageUrlString) {
             posterImageView.kf.setImage(
                 with: url,

@@ -7,12 +7,11 @@
 
 import Foundation
 
-struct AnimeList: Codable {
+struct ContentList: Codable {
     let id: Int
     let name: String?
     let russian: String?
-    let image: animeImage
-    let url: String
+    let image: contentImage
     let score: String?
     let episodes: Int?
     let episodesAired: Int?
@@ -20,7 +19,7 @@ struct AnimeList: Codable {
     let status: String?
     let airedOn: String?
 }
-struct animeImage: Codable {
+struct contentImage: Codable {
     let original: String?
     let preview: String?
 }

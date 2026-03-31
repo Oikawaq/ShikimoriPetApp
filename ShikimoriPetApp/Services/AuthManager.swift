@@ -222,6 +222,7 @@ class AuthManager {
 
                     UserDefaults.standard.set(user.id, forKey: "current_user_id")
                     UserDefaults.standard.set(user.nickname, forKey: "current_user_nickname")
+                    
                 })
                 .store(in: &cancellables)
         }

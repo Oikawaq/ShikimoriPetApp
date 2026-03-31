@@ -49,13 +49,17 @@ final class ListSectionView: UIView {
                 row.tag = id
             }
             mainStack.addArrangedSubview(row)
-
-            if index < data.count - 1 {
-                let separator = UIView()
-                separator.backgroundColor = .systemGray5
-                separator.snp.makeConstraints { $0.height.equalTo(1) }
-                mainStack.addArrangedSubview(separator)
-            }
+            
+//            if index < data.count - 1 {
+//                let separator = UIView()
+//                separator.backgroundColor = .basalt
+//                
+//                separator.snp.makeConstraints {
+//                    $0.height.equalTo(1)
+//
+//                }
+//                mainStack.addArrangedSubview(separator)
+//            }
         }
     }
     @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {

@@ -29,7 +29,7 @@ final class RowView: UIView {
     private let roleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.textColor = .basalt.withAlphaComponent(0.5)
         return label
     }()
 
@@ -61,8 +61,8 @@ final class RowView: UIView {
         addSubview(textStack)
         avatarImageView.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview().inset(8)
-            make.width.equalTo(40)
-            make.height.equalTo(60) 
+            make.width.equalTo(48)
+            make.height.equalTo(72) 
         }
         
         textStack.snp.makeConstraints { make in

@@ -28,18 +28,23 @@ class ProfileViewController: UIViewController {
     
     override func loadView() {
            view = ProfileView()
+        loadAllData()
        }
     
-    
+        //MARK: lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadAllData()
+        
         setupBindings()
         setupCollectionView()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        viewModel.loadUserFriends()
+        viewModel.loadUserFavorites()
+    }
     func loadAllData(){
         viewModel.loadUserData()
-        viewModel.loadUserFriends()
+        
     }
     private func setupBindings() {
         viewModel.$profileData
@@ -52,6 +57,13 @@ class ProfileViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self]_ in
                 self?.profileView?.friendsCollectionView.reloadData()
+            }
+            .store(in: &cancellables)
+        viewModel.$userFavorites
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self]_ in
+                guard let self = self else {return}
+                self.profileView?.favoritesCollectionView.reloadData()
             }
             .store(in: &cancellables)
     }
@@ -73,35 +85,70 @@ class ProfileViewController: UIViewController {
    private func setupCollectionView(){
        profileView?.friendsCollectionView.delegate = self
        profileView?.friendsCollectionView.dataSource = self
+       
+       profileView?.favoritesCollectionView.delegate = self
+       profileView?.favoritesCollectionView.dataSource = self
     }
 
 }
 
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return collectionView == profileView?.friendsCollectionView ? viewModel.userFriendsList.count : viewModel.favoritesList.count
         
-        return viewModel.userFriendsList.count
-       
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FriendsCell.identifier, for: indexPath) as? FriendsCell else {
+        if collectionView == profileView?.friendsCollectionView { guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FriendsCell.identifier, for: indexPath) as? FriendsCell else {
             return UICollectionViewCell()
         }
-        let friend = viewModel.userFriendsList[indexPath.item]
-        cell.configure(friends: friend)
-        return cell
+            
+            let friend = viewModel.userFriendsList[indexPath.item]
+            cell.configure(friends: friend)
+            return cell
+        }
+        else{
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UniversalCollectionViewCell.identifier, for: indexPath) as? UniversalCollectionViewCell else {
+                return UICollectionViewCell()
+            }
+            let favorite = viewModel.favoritesList[indexPath.item]
+            cell.configure(with: favorite)
+            return cell
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let id = viewModel.userFriendsList[indexPath.item].id else {return }
-        let vm = ProfileViewModel(userId: id)
-        let vc = ProfileViewController(viewModel: vm)
-        navigationController?.pushViewController(vc, animated: true)
+        if collectionView == profileView?.friendsCollectionView {
+            guard let id = viewModel.userFriendsList[indexPath.item].id else {return }
+            let vm = ProfileViewModel(userId: id)
+            let vc = ProfileViewController(viewModel: vm)
+            navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let item = viewModel.favoritesList[indexPath.item]
+            switch item.type {
+            case .anime:
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .animes))
+                navigationController?.pushViewController(vc, animated: true)
+            case .character:
+                let vc = CharacterProfileVC(viewModel: CharacterViewModel(characterId: item.id))
+                navigationController?.pushViewController(vc, animated: true)
+            case .manga:
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .mangas))
+                navigationController?.pushViewController(vc, animated: true)
+            case .ranobe:
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .ranobe))
+                navigationController?.pushViewController(vc, animated: true)
+            case .none:
+                print("no favorite data")
+            }
+       
+            
+            
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 80, height: 80)
+        return collectionView == profileView?.friendsCollectionView ? CGSize(width: 100, height: 100) : CGSize(width: 100, height: 200)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

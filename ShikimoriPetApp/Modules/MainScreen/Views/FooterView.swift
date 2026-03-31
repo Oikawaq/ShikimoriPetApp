@@ -40,7 +40,7 @@ class FooterView: UICollectionReusableView {
     }()
     private let currentPageLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .label
+        label.textColor = .basalt
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.text = "-"

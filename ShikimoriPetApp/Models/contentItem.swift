@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Anime: Codable{
+struct contentItem: Decodable{
     let id: Int
     let description: String?
     let duration: Int?
@@ -21,21 +21,28 @@ struct Anime: Codable{
     let image: CharacterImage?
     let airedOn: String?
     let score: String?
-    let studios: [Studios]
+    let studios: [Studios]?
     let nextEpisodeAt: String?
+    let volumes: Int?
+    let chapters: Int?
 }
-struct CharacterRole: Codable{
+struct CharacterRole: Decodable{
     let character: Character?
     let roles: [String]
 }
-struct Character: Codable{
+struct Character: Decodable, UniversalCellProtocol{
+    
+    var cellTitle: String { russian ?? name }
+    
+    var cellImage: String? {image?.original ?? image?.preview ?? "" }
+    
     let id: Int
     let name: String
     let russian: String?
     let image: CharacterImage?
     
 }
-struct CharacterImage: Codable {
+struct CharacterImage: Decodable {
     let original: String?
     let preview: String?
 }

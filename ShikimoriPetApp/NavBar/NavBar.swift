@@ -13,7 +13,6 @@ class TabBarController: UITabBarController {
         super.viewDidLoad()
         setupVCs()
         setupAppearance()
-        view.backgroundColor = .red
     }
     
     private func setupVCs() {
@@ -49,9 +48,9 @@ class TabBarController: UITabBarController {
            if #available(iOS 13.0, *) {
                let appearance = UITabBarAppearance()
                appearance.configureWithOpaqueBackground()
-               appearance.backgroundColor = .chalkWhite
-               appearance.stackedLayoutAppearance.selected.iconColor = .basalt
-               appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.basalt]
+               appearance.backgroundColor = .basalt
+               appearance.stackedLayoutAppearance.selected.iconColor = .chalkWhite
+               appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.chalkWhite]
                appearance.stackedLayoutAppearance.normal.iconColor = .lightGray
                appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.lightGray]
                

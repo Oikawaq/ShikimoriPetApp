@@ -6,6 +6,11 @@
 //
 
 import Foundation
-struct UserFavourites: Codable {
-    let animes, characters, mangas, ranobe: [UniversalType]
+struct UserFavourites: Decodable {
+    let characters: [UniversalType]
+    let animes: [UniversalType]
+    let mangas: [UniversalType]
+    let ranobe: [UniversalType]
 }
+
+

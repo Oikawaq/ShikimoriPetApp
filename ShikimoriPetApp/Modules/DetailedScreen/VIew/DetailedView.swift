@@ -19,6 +19,7 @@ final class DetailView: UIView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
+        iv.backgroundColor = .red
         iv.layer.cornerRadius = 8
         return iv
     }()
@@ -27,13 +28,14 @@ final class DetailView: UIView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 24, weight: .bold)
         label.numberOfLines = 0
+        label.textColor = .basalt
         return label
     }()
     let favoritesButton: UIButton = {
         let button = UIButton()
         let image = UIImage(systemName: "star")
         button.setImage(image, for: .normal)
-        button.tintColor = .systemGray2
+        button.tintColor = .basalt
         return button
     }()
     let ratingBlock = RatingBlockView()
@@ -59,14 +61,14 @@ final class DetailView: UIView {
     
     let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .label
+        label.textColor = .basalt
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         return label
     }()
-    private let relatedContainer = ContainerView(title: "Связанные")
+    let relatedContainer = ContainerView(title: "Связанное")
     let relatedSectionView = ListSectionView()
     private let tagsStackView: UIStackView = {
         let stack = UIStackView()
@@ -76,12 +78,12 @@ final class DetailView: UIView {
         stack.distribution = .fill
         return stack
     }()
-    let collectionView: UICollectionView = {
+    let charactersCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.register(CharactersCell.self, forCellWithReuseIdentifier: CharactersCell.identifier)
+        cv.register(UniversalCollectionViewCell.self, forCellWithReuseIdentifier: UniversalCollectionViewCell.identifier)
         cv.backgroundColor = .clear
         cv.showsHorizontalScrollIndicator = false
         return cv
@@ -90,12 +92,12 @@ final class DetailView: UIView {
     let authorsSectionView = ListSectionView()
     private let MainHeroContainer = ContainerView(title: "Главные герои")
     
-    private let photosContainer = ContainerView(title: "Кадры")
-    let photosCollectionView: UICollectionView = {
+    let screenshotsConainer = ContainerView(title: "Кадры")
+    let screenshotsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
+        cv.register(ScreenshotsCell.self, forCellWithReuseIdentifier: ScreenshotsCell.identifier)
         cv.backgroundColor = .clear
         cv.showsHorizontalScrollIndicator = false
         return cv
@@ -213,9 +215,9 @@ final class DetailView: UIView {
             authorsContainer,
             authorsSectionView,
             MainHeroContainer,
-            collectionView,
-            photosContainer,
-            photosCollectionView
+            charactersCollectionView,
+            screenshotsConainer,
+            screenshotsCollectionView
             
         ].forEach { stackView.addArrangedSubview($0) }
         posterImageContainer.addSubview(posterImageView)
@@ -252,10 +254,10 @@ final class DetailView: UIView {
             make.top.bottom.equalToSuperview()
             make.width.equalTo(220)
         }
-        collectionView.snp.makeConstraints { make in
+        charactersCollectionView.snp.makeConstraints { make in
             make.height.equalTo(200)
         }
-        photosCollectionView.snp.makeConstraints { make in
+        screenshotsCollectionView.snp.makeConstraints { make in
             make.height.equalTo(215)
         }
         userRateStatusButton.snp.makeConstraints { make in

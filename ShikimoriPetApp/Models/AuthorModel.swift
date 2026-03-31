@@ -7,12 +7,13 @@
 
 import Foundation
 
-struct AuthorModel: Codable {
+struct AuthorModel: Decodable {
     let roles: [String]
     let rolesRussian: [String]
     let person: Person?
+    
 }
-struct Person: Codable {
+struct Person: Decodable {
     let id: Int
     let name: String
     let russian: String

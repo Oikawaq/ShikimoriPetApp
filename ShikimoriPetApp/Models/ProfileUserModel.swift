@@ -25,7 +25,11 @@ struct Images: Codable{
     let x48: String
     let x32: String
 }
-struct UserFriendsModel: Codable{
+struct UserFriendsModel: Codable, UniversalCellProtocol{
+    var cellTitle:String {nickname ?? "Unknown"}
+    
+    var cellImage: String? { image?.x160 ?? ""}
+    
     let id: Int?
     let nickname: String?
     let image: Images?

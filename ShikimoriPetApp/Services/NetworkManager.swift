@@ -38,7 +38,9 @@ final class NetworkManager {
                     do {
                         promise(.success(try self.decoder.decode(T.self, from: data)))
                     } catch {
-                        promise(.failure(.badResponse))
+                        print("DECODE ERROR: \(error)") 
+                         print("RAW JSON: \(String(data: data, encoding: .utf8) ?? "")")
+                         promise(.failure(.badResponse))
                     }
                 }.resume()
             }
@@ -56,8 +58,11 @@ final class NetworkManager {
                      promise(.failure(.badUrl))
                      return
                  }
+
                  URLSession.shared.dataTask(with: request) { _, _, error in
-                     error != nil ? promise(.failure(.badData)) : promise(.success(()))
+                     if let error = error {
+                         print(error)
+                     }
                  }.resume()
              }
          }.eraseToAnyPublisher()

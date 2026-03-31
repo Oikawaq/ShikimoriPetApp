@@ -19,7 +19,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window = UIWindow(windowScene: windowScene)
         
         checkAuthenticationStatus()
-        
+
+
         self.window?.makeKeyAndVisible()
         
         
@@ -28,11 +29,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         AuthManager.shared.getValidAccessToken { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let token):
+                case .success(_):
                     AuthManager.shared.authState = .authorized
+                    let userId = UserDefaults.standard.integer(forKey: "current_user_id")
+                    FavouritesManager.shared.loadFavorites(userID: userId)
                     self?.showMainScreen()
-                    
-                case .failure(let error):
+                case .failure(_):
                     AuthManager.shared.authState = .notAuthorized
                     self?.showAuthScreen()
                 }

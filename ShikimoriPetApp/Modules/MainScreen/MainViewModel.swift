@@ -9,28 +9,42 @@ import Foundation
 import Combine
 
 class MainViewModel {
-    @Published var anime: [AnimeList] = []
-    
-    var onDataLoaded:(() -> Void)?
-    var onError:(() -> Void)?
+    @Published var content: [ContentList] = []
+    @Published var contentType: ContentType = .animes
+
     var currentPage: Int = 1
     
+  
+
     func loadNextPage() {
         currentPage += 1
-        loadAnimeList(currentPage: currentPage)
+        loadTypeData(currentPage: currentPage,type: contentType)
     }
 
     func loadPreviousPage() {
         guard currentPage > 1 else { return }
         currentPage -= 1
-        loadAnimeList(currentPage: currentPage)
+        loadTypeData(currentPage: currentPage,type: contentType)
     }
-    
-    func loadAnimeList(currentPage: Int) {
-        NetworkManager.shared.request(endpoint: .animeList(page: currentPage, limit: 20), method: .get)
+    func switchContent(to type: ContentType){
+        contentType = type
+        content = []
+        currentPage = 1
+        loadContent(currentPage: currentPage, to: type)
+        
+    }
+    private func loadContent(currentPage: Int, to Type: ContentType){
+        switch contentType {
+        case .animes: loadTypeData(currentPage: currentPage,type: .animes)
+        case .mangas: loadTypeData(currentPage: currentPage,type: .mangas)
+        case .ranobe: loadTypeData(currentPage: currentPage,type: .ranobe)
+        }
+    }
+    private func loadTypeData(currentPage: Int,type: ContentType) {
+        NetworkManager.shared.request(endpoint: .loadTypeData(page: currentPage, limit: 20, contentType: type), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
-            .assign(to: &$anime)
+            .assign(to: &$content)
     }
     
 }

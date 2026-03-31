@@ -1,24 +1,30 @@
-//
-//  CharacterViewModel.swift
-//  ShikimoriPetApp
-//
-//  Created by Иван Илькив on 3/3/26.
-//
 
 import Foundation
 import Combine
 
 class CharacterViewModel{
     
-    var character: Character
+    var character: Character?
     let characterID: Int
-
+    @Published var isFavorite: Bool = false
     @Published var fullCharacterDetails: CharacterDetail?
+    var cancellables: Set<AnyCancellable> = []
     init (character: Character) {
         self.characterID = character.id
         self.character = character
+        setupFavoritesBinding()
     }
-    
+    init(characterId: Int) {
+        self.characterID = characterId
+        self.character = nil
+        setupFavoritesBinding()
+    }
+    var animesListCount: Int{
+       return fullCharacterDetails?.animes.count ?? 0
+    }
+    var mangasListCount: Int{
+       return fullCharacterDetails?.mangas.count ?? 0
+    }
     var seyu: [ListSectionView.RowData] {
         fullCharacterDetails?.seyu?.prefix(2).map{seyu in
             return ListSectionView.RowData(title: seyu.russian ?? "", subtitle: seyu.name ?? "", imageUrl: seyu.image?.original, id: seyu.id
@@ -26,14 +32,18 @@ class CharacterViewModel{
             
         } ?? []
     }
-    var relatedAnime: [ListSectionView.RowData] {
-        fullCharacterDetails?.animes.map{ anime in
-            return ListSectionView.RowData(title: anime.russian ?? anime.name ?? "", subtitle: "", imageUrl: anime.image?.original, id: anime.id)
-        } ?? []
+    var relatedAnimeList: [universalType]{
+        guard let list = fullCharacterDetails?.animes else { return []}
+        return list
     }
-    var name: String { "\(character.russian ?? "") / \(character.name)"}
+    var relatedMangaList: [universalType]{
+        guard let list = fullCharacterDetails?.mangas else { return []}
+        return list
+    }
+    
+    var name: String { "\(character?.russian ?? fullCharacterDetails?.russian ?? "") / \(character?.name ?? fullCharacterDetails?.name ?? "")"}
     var imageURL: URL? {
-        let path = fullCharacterDetails?.image?.original ?? character.image?.original ?? ""
+        let path = fullCharacterDetails?.image?.original ?? character?.image?.original ?? ""
         let fullPath = "https://shikimori.io" + path
         return URL(string: fullPath)
     }
@@ -49,5 +59,19 @@ class CharacterViewModel{
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$fullCharacterDetails)
+    }
+    private func setupFavoritesBinding() {
+        FavouritesManager.shared.$isLoaded
+            .filter { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.isFavorite = FavouritesManager.shared.contains(self.characterID, type: .character)
+            }
+            .store(in: &cancellables)
+    }
+    func toggleFavorite() {
+        FavouritesManager.shared.toggleFavorite(id: characterID, type: .character)
+        isFavorite.toggle()
     }
 }

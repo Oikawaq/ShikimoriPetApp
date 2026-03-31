@@ -11,14 +11,21 @@ import SnapKit
 final class MainView: UIView {
     
     // MARK: UIComponents
-    let label: UILabel = {
-        let label = UILabel()
-        label.text = L10n.MainPage.categoryAnime
-        label.font = UIFont.boldSystemFont(ofSize: 20)
-        label.textColor = .chalkWhite
-        return label
+    let typeSelectorButton: UIButton = {
+        var configuration = UIButton.Configuration.filled()
+        configuration.titleAlignment = .leading
+        configuration.imagePlacement = .trailing
+        configuration.imagePadding = 10
+        configuration.buttonSize = .medium
+        configuration.baseBackgroundColor = .chalkWhite.withAlphaComponent(0.3)
+        configuration.image = UIImage(systemName: "chevron.down")
+        let button = UIButton(configuration: configuration)
+        button.setTitle("Аниме", for: .normal)
+        button.setTitleColor(.chalkWhite, for: .normal)
+        button.showsMenuAsPrimaryAction = true
+        return button
     }()
-    
+
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = L10n.MainPage.description
@@ -33,7 +40,7 @@ final class MainView: UIView {
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .chalkWhite
-        cv.register(AnimeListCell.self, forCellWithReuseIdentifier: AnimeListCell.identifier)
+        cv.register(ItemsListCell.self, forCellWithReuseIdentifier: ItemsListCell.identifier)
         cv.register(FooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterView.identifier)
         return cv
     }()
@@ -58,7 +65,7 @@ final class MainView: UIView {
     //MARK: Setup
     
     private func addsViews(){
-        [label, descriptionLabel,collectionView].forEach {
+        [typeSelectorButton, descriptionLabel,collectionView].forEach {
             addSubview($0)
         }
     }
@@ -66,12 +73,13 @@ final class MainView: UIView {
         
         backgroundColor = UIColor.basalt
         
-        label.snp.makeConstraints { make in
+        typeSelectorButton.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(-40)
             make.left.equalToSuperview().offset(16)
+            make.height.equalTo(50)
         }
         descriptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(label.snp.bottom).offset(8)
+            make.top.equalTo(typeSelectorButton.snp.bottom).offset(8)
             make.left.equalToSuperview().offset(16)
         }
         collectionView.snp.makeConstraints { make in

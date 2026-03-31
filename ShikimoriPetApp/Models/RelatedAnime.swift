@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RelatedAnime : Codable {
+struct RelatedAnime : Decodable {
     let relation: String
     let relationRussian: String
     let anime: universalType?
@@ -15,9 +15,14 @@ struct RelatedAnime : Codable {
     
 }
 
-struct universalType: Codable {
+struct universalType: Decodable, UniversalCellProtocol {
+    var cellTitle: String { russian ?? name }
+    
+    var cellImage: String? {image?.original}
+    
     let id: Int
     let name: String
-    let russian: String
+    let russian: String?
     let image: CharacterImage?
+    var type: FavoriteType?
 }

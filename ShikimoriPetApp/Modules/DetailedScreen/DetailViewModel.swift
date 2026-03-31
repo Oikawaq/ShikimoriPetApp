@@ -3,11 +3,13 @@ import Foundation
 
 @MainActor
 class DetailedViewModel{
-    private let animeID: Int
-    let animeList: AnimeList?
+    private let itemsId: Int
+    let contentList: ContentList?
+    
+    var type: ContentType
     
     //MARK: Published Properties
-    @Published var anime: Anime?
+    @Published var anime: contentItem?
     @Published var characters: [CharacterRole] = []
     @Published var screenshots: [Screenshots] = []
     @Published var authors: [AuthorModel] = []
@@ -16,6 +18,7 @@ class DetailedViewModel{
     @Published var authorsRowData: [ListSectionView.RowData] = []
     @Published var relatedRowData: [ListSectionView.RowData] = []
     @Published var isLoading: Bool = false
+    @Published var isFavorite: Bool = false
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -23,7 +26,7 @@ class DetailedViewModel{
         UserDefaults.standard.integer(forKey: "current_user_id")
     }
     var score: String {
-        return animeList?.score ?? anime?.score ?? "Нет информации"
+        return contentList?.score ?? anime?.score ?? "Нет информации"
     }
     var statusButtonText: String {
         guard !isLoading else { return "Загрузка..." }
@@ -76,25 +79,43 @@ class DetailedViewModel{
         return WatchingStatus(rawValue: rawValue) ?? .none
     }
     //MARK: init
-    init(animeList: AnimeList) {
-        self.animeList = animeList
-        self.animeID = animeList.id
+    init(contentList: ContentList, contentType: ContentType) {
+        self.contentList = contentList
+        self.itemsId = contentList.id
+        self.type = contentType
+        setupFavoritesBinding()
     }
-    init(animeID: Int){
-        self.animeID = animeID
-        self.animeList = nil
+    init(itemId: Int,contentType: ContentType){
+        self.itemsId = itemId
+        self.contentList = nil
+        self.type = contentType
+        setupFavoritesBinding()
     }
     
-    var nextEpisode: String? {
+    private var nextEpisode: String? {
         return anime?.nextEpisodeAt
         
     }
+    private var nextEpisodeDate: Date? {
+        guard let date = nextEpisode else { return nil}
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        return formatter.date(from: date)
+    }
+    private var nextEpisodeText: String? {
+        guard let date = nextEpisodeDate else { return nil}
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ru-RU")
+        formatter.dateFormat = "d MMMM HH:mm"
+        return formatter.string(from: date)
+    }
     var imageURL: URL? {
-        let fullPath = "https://shikimori.io" + (animeList?.image.original ?? anime?.image?.original ?? "")
+        let fullPath = "https://shikimori.io" + (contentList?.image.original ?? anime?.image?.original ?? "")
         return URL(string: fullPath)
     }
     var studiosImage: URL? {
-        let fullpath = "https://shikimori.io" + (anime?.studios.first?.image ?? "")
+        let fullpath = "https://shikimori.io" + (anime?.studios?.first?.image ?? "")
         return URL(string: fullpath)
         
     }
@@ -102,31 +123,44 @@ class DetailedViewModel{
         var details: [(key: String, value: String)] = []
         
         details.append(("Тип", kind))
+        let contentType = type
+        switch contentType {
+        case .animes:
+            details.append(("Эпизоды", episodes))
+        case .mangas, .ranobe:
+            details.append(("Тома", volumes))
+            details.append(("Главы", chapters))
+        }
         
-        details.append(("Эпизоды", episodes))
         
         if anime?.kind == "movie", let duration = anime?.duration {
             details.append(("Длительность: ", "\(duration) мин."))
         }
         
         details.append(("Статус", status))
-        
         if nextEpisode != nil {
-            details.append(("Следующий эпизод: ", nextEpisode ?? "Нет информации"))
+            details.append(("Следующий эпизод: ", nextEpisodeText ?? "Нет информации"))
         }
         return details
     }
+    var chapters: String{
+        guard let chapters = anime?.chapters else{ return "?"}
+        return "\(chapters)"
+    }
+    var volumes: String{
+        guard let volumes = anime?.volumes else{ return "?"}
+        return "\(volumes)"
+    }
     var episodes: String {
-        
-        let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
-        var total = anime?.episodes.map { "\($0)" } ?? "?"
-        if aired > total{
-            total = "?"
-        }
-        switch status {
-        case "Онгоинг": return "\(aired) / \(total)"
-        default: return total
-        }
+            let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
+            var total = anime?.episodes.map { "\($0)" } ?? "?"
+            if aired > total{
+                total = "?"
+            }
+            switch status {
+            case "Онгоинг": return "\(aired) / \(total)"
+            default: return total
+            }
     }
     
     var kind: String {
@@ -134,14 +168,17 @@ class DetailedViewModel{
         case "tv": return "ТВ-сериал"
         case "movie": return "Фильм"
         case "ona" : return "ONA"
+        case "manga": return "Манга"
+        case "ranobe": return "Ранобэ"
+        case "novel": return "Новелла"
         default: return anime?.kind ?? "Неизвестно"
         }
     }
     
-    var title: String { "\(animeList?.russian ?? anime?.russian ?? "Нет названия") / \(animeList?.name ?? anime?.name ?? "Нет названия")" }
+    var title: String { "\(contentList?.russian ?? anime?.russian ?? "Нет названия") / \(contentList?.name ?? anime?.name ?? "Нет названия")" }
     
     var numericScore: Double {
-        return Double(animeList?.score ?? anime?.score ?? "0") ?? 0.0
+        return Double(contentList?.score ?? anime?.score ?? "0") ?? 0.0
     }
     
     var ratingText: String {
@@ -163,12 +200,13 @@ class DetailedViewModel{
         switch anime?.status {
         case "released": return "Вышло"
         case "ongoing": return "Онгоинг"
-        default: return animeList?.status ?? anime?.status ?? "Неизвестно"
+        case "paused" : return "Приостановлено"
+        default: return contentList?.status ?? anime?.status ?? "Неизвестно"
         }
     }
     
     var year: String {
-        return String(animeList?.airedOn?.prefix(4) ?? anime?.airedOn?.prefix(4) ?? "??")
+        return String(contentList?.airedOn?.prefix(4) ?? anime?.airedOn?.prefix(4) ?? "??")
     }
     var screenshotURLs: [URL] {
         return screenshots.compactMap {
@@ -184,18 +222,34 @@ class DetailedViewModel{
         return anime?.episodes ?? 0
     }
     func makeRateEditorVM() -> RateEditorViewModel {
-        RateEditorViewModel(
-            watchingStatus: watchingStatus,
-            maxEpisodes: maxEpisodesBug,
-            currentScore: userRate.first?.score ?? 0,
-            currentEpisodes: userRate.first?.episodes ?? 0,
-            onSave: { [weak self] status, episodes, score in
-                self?.updateFullRate(status: status, score: score, episodes: episodes)
-            }
-            
-        )
+        switch type{
+        case .animes:
+            RateEditorViewModel(
+                watchingStatus: watchingStatus,
+                maxEpisodes: maxEpisodesBug,
+                currentScore: userRate.first?.score ?? 0,
+                currentEpisodes: userRate.first?.episodes ?? 0,
+                onSave: { [weak self] status, episodes, score in
+                    self?.updateFullRate(status: status, score: score, episodes: episodes)
+                }
+                
+            )
+        case .mangas,.ranobe:
+            RateEditorViewModel(
+                watchingStatus: watchingStatus,
+                maxEpisodes: maxEpisodesBug,
+                currentScore: userRate.first?.score ?? 0,
+                currentEpisodes: userRate.first?.episodes ?? 0,
+                onSave: { [weak self] status, episodes, score in
+                    self?.updateFullRate(status: status, score: score, episodes: episodes)
+                }
+                
+            )
+        }
+        
         
     }
+
     //MARK: Network Methods
     func updateFullRate(status: WatchingStatus, score: Int, episodes: Int) {
         if userRate.first?.id == nil {
@@ -242,8 +296,8 @@ class DetailedViewModel{
         return [
             "user_rate": [
                 "user_id": userID,
-                "target_id": animeID,
-                "target_type": "Anime",
+                "target_id": itemsId,
+                "target_type": type,
                 "status": status.rawValue,
                 "score": score,
                 "episodes": episodes
@@ -260,14 +314,14 @@ class DetailedViewModel{
         ]
     }
     func loadData(){
-        NetworkManager.shared.request(endpoint: .animeDetails(id: animeID), method: .get)
+        NetworkManager.shared.request(endpoint: .contentDetails(id: itemsId, contentType: type), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$anime)
     }
     
     func loadCharacters(){
-        NetworkManager.shared.request(endpoint: .animeMainCharacters(id: animeID), method: .get)
+        NetworkManager.shared.request(endpoint: .itemMainCharacters(id: itemsId, contentType: type), method: .get)
             .map{(roles: [CharacterRole]) in
                 roles.filter{$0.roles.contains("Main")
                 }
@@ -277,31 +331,47 @@ class DetailedViewModel{
             .assign(to: &$characters)
     }
     func loadScreenshots() {
-        NetworkManager.shared.request(endpoint: .screenshots(id: animeID), method: .get)
+        NetworkManager.shared.request(endpoint: .screenshots(id: itemsId, сontentType: type), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: &$screenshots)
     }
-    func loadAuthors() {
-        NetworkManager.shared.request(endpoint: .authors(id: animeID), method: .get)
-            .map { (roles: [AuthorModel]) -> [ListSectionView.RowData] in
-                let targetRoles: Set = ["Original Creator", "Chief Producer", "Chief Animation Director", "Director", "Writer"]
-                var filtered = roles.filter { !targetRoles.isDisjoint(with: Set($0.roles)) }
-                
-                filtered.sort { first, second in
-                    let f = first.roles.contains("Original Creator")
-                    let s = second.roles.contains("Original Creator")
-                    return f && !s
-                }
-                
-                return filtered.map {
-                    ListSectionView.RowData(
-                        title: $0.person?.russian ?? "",
-                        subtitle: $0.rolesRussian.joined(separator: ", "),
-                        imageUrl: $0.person?.image?.original,
-                        id: $0.person?.id
-                    )
-                }
+
+    private func targetRoles(for type: ContentType) -> Set<String> {
+        switch type {
+        case .animes:
+            return ["Original Creator", "Chief Producer", "Chief Animation Director", "Director", "Writer"]
+        case .mangas:
+            return ["Story & Art", "Art"]
+        case .ranobe:
+            return ["Story", "Art"]
+        }
+    }
+
+    private func mapToRowData(_ roles: [AuthorModel]) -> [ListSectionView.RowData] {
+        roles.prefix(4).map {
+            var title = $0.person?.russian
+            if title == ""{
+                title = $0.person?.name
+            }
+            return ListSectionView.RowData(
+                title: title ?? "Unknown",
+                subtitle: $0.rolesRussian.joined(separator: ", "),
+                imageUrl: $0.person?.image?.original,
+                id: $0.person?.id
+            )
+        }
+    }
+
+    func loadAuthors(type: ContentType) {
+        NetworkManager.shared.request(endpoint: .authors(id: itemsId, contentType: type), method: .get)
+            .map { [weak self] (roles: [AuthorModel]) -> [ListSectionView.RowData] in
+                guard let self else { return [] }
+                let target = self.targetRoles(for: type)
+                let filtered = roles
+                    .filter { !target.isDisjoint(with: Set($0.roles)) }
+                    .sorted { $0.roles.contains("Original Creator") && !$1.roles.contains("Original Creator") }
+                return self.mapToRowData(Array(filtered))
             }
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
@@ -309,13 +379,13 @@ class DetailedViewModel{
     }
     
     func loadRelated() {
-        NetworkManager.shared.request(endpoint: .related(id: animeID), method: .get)
+        NetworkManager.shared.request(endpoint: .related(id: itemsId, contentType: type), method: .get)
             .map { (related: [RelatedAnime]) -> [ListSectionView.RowData] in
                 return related.compactMap { item in
                     let content = item.anime ?? item.manga
                     guard let content = content else { return nil }
                     return ListSectionView.RowData(
-                        title: content.russian,
+                        title: content.russian ?? content.name ?? "",
                         subtitle: item.relationRussian,
                         imageUrl: content.image?.original,
                         id: content.id
@@ -329,24 +399,43 @@ class DetailedViewModel{
     
     func loadUserRate() {
         isLoading = true
-        NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: animeID), method: .get)
+    
+        NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: itemsId, contentType: type), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (rates: [AnimeUserRate]) in
-                self?.userRate = rates
-                self?.isLoading = false
+                guard let self = self else { return }
+                self.userRate = rates
+                self.isLoading = false
             }
             .store(in: &cancellables)
     }
-    func favorites(){
-        NetworkManager.shared.requestVoid(endpoint: .favorites(id: animeID), method: .post)
+    private func setupFavoritesBinding() {
+        FavouritesManager.shared.$isLoaded
+            .filter { $0 }
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] in
-                print("Добавлено в избранное")
-            })
+            .sink { [weak self] _ in
+                guard let self else { return }
+                self.isFavorite = FavouritesManager.shared.contains(self.itemsId, type: setFavoriteType())
+            }
             .store(in: &cancellables)
     }
-    func loadFavorites(){
-        
+    private func setFavoriteType() -> FavoriteType{
+        let favoriteType: FavoriteType
+        switch type {
+        case .animes:
+            favoriteType = .anime
+        case .mangas:
+            favoriteType = .manga
+        case .ranobe:
+            favoriteType = .ranobe
+        default : favoriteType = .character
+        }
+        return favoriteType
+    }
+    func toggleFavorite() {
+
+        FavouritesManager.shared.toggleFavorite(id: itemsId, type: setFavoriteType())
+        isFavorite.toggle()
     }
 }

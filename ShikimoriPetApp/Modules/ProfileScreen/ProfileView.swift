@@ -27,8 +27,8 @@ class ProfileView: UIView {
         return imageView
     }()
 
-    lazy var userName = createLabel(title: "", size: 20)
-    lazy var userAge = createLabel(title: "")
+    lazy var userName = createLabel(title: "", size: 25, weight: .bold)
+    lazy var userAge = createLabel(title: "", size: 20, weight: .medium)
     let friendsContainer = ContainerView(title: "Друзья")
     
     let friendsCollectionView: UICollectionView = {
@@ -39,8 +39,15 @@ class ProfileView: UIView {
         collectionView.backgroundColor = .chalkWhite
         return collectionView
     }()
-    
-    
+    private let favoritesContainer = ContainerView(title: "Избранное")
+    let favoritesCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.register(UniversalCollectionViewCell.self, forCellWithReuseIdentifier: UniversalCollectionViewCell.identifier)
+        collectionView.backgroundColor = .chalkWhite
+        return collectionView
+    }()
     // MARK: - init
     init() {
        super.init(frame: .zero)
@@ -58,7 +65,7 @@ class ProfileView: UIView {
     private func addViews(){
         addSubview(scrollView)
         scrollView.addSubview(contentStackView)
-        [headerBlock,friendsContainer, friendsCollectionView].forEach {
+        [headerBlock,friendsContainer, friendsCollectionView, favoritesContainer,favoritesCollectionView].forEach {
             contentStackView.addArrangedSubview($0)
         }
         headerBlock.addSubview(profileImage)
@@ -92,14 +99,17 @@ class ProfileView: UIView {
             make.left.equalTo(profileImage.snp.right).offset(16)
         }
         friendsCollectionView.snp.makeConstraints { make in
-            make.height.equalTo(80)
+            make.height.equalTo(100)
+        }
+        favoritesCollectionView.snp.makeConstraints { make in
+            make.height.equalTo(200)
         }
 
     }
-    private func createLabel(title: String, size : CGFloat = 16)-> UILabel{
+    private func createLabel(title: String, size : CGFloat = 16, weight: UIFont.Weight = .regular)-> UILabel{
         let label = UILabel()
         label.text = title
-        label.font = .systemFont(ofSize: size, weight: .regular)
+        label.font = .systemFont(ofSize: size, weight: weight)
         label.textColor = .basalt
         return label
     }

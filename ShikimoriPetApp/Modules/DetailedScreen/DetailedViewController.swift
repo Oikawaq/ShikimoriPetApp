@@ -17,6 +17,7 @@ final class DetailedViewController: UIViewController {
     }
     //MARK: init
     init(viewModel: DetailedViewModel) {
+        
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -25,7 +26,7 @@ final class DetailedViewController: UIViewController {
     //MARK: lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupCollectionVIew()
+        setupCollectionView()
         setupBindings()
         loadAllData()
         setupButtonsAction()
@@ -33,21 +34,29 @@ final class DetailedViewController: UIViewController {
     }
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        if viewModel.isLoading {
-            detailView?.userRateStatusButton.showSkeleton()
-        }
     }
     
     private func loadAllData(){
         viewModel.loadUserRate()
-        
+        let type = viewModel.type
         let delay = 0.3
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 1) { self.viewModel.loadData() }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 2) { self.viewModel.loadCharacters() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) { self.viewModel.loadAuthors(type: type)}
+            
+        switch type {
+            case .animes:
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 3) { self.viewModel.loadScreenshots() }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) { self.viewModel.loadAuthors() }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay * 5) { self.viewModel.loadRelated() }
-       
+            case .mangas:
+            [detailView?.screenshotsConainer,detailView?.screenshotsCollectionView,detailView?.relatedSectionView, detailView?.relatedContainer].forEach{
+                $0?.isHidden = true
+            }
+            case .ranobe:
+            detailView?.screenshotsConainer.isHidden = true
+            detailView?.screenshotsCollectionView.isHidden = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 5) { self.viewModel.loadRelated() }
+        }
         
     }
     private func setupButtonsAction(){
@@ -68,16 +77,16 @@ final class DetailedViewController: UIViewController {
 
     }
     @objc func favoritesTapped(){
-        viewModel.favorites()
+        viewModel.toggleFavorite()
     }
     
     //MARK: setupUI
-    private func setupCollectionVIew(){
-        detailView?.collectionView.dataSource = self
-        detailView?.collectionView.delegate = self
+    private func setupCollectionView(){
+        detailView?.charactersCollectionView.dataSource = self
+        detailView?.charactersCollectionView.delegate = self
         
-        detailView?.photosCollectionView.dataSource = self
-        detailView?.photosCollectionView.delegate = self
+        detailView?.screenshotsCollectionView.dataSource = self
+        detailView?.screenshotsCollectionView.delegate = self
     }
     private func setupBindings() {
         viewModel.$anime
@@ -90,14 +99,15 @@ final class DetailedViewController: UIViewController {
         viewModel.$characters
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.detailView?.collectionView.reloadData()
+                self?.detailView?.charactersCollectionView.reloadData()
             }
             .store(in: &cancellables)
 
         viewModel.$screenshots
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.detailView?.photosCollectionView.reloadData()
+                guard let self = self else { return }
+                self.detailView?.screenshotsCollectionView.reloadData()
             }
             .store(in: &cancellables)
 
@@ -119,7 +129,8 @@ final class DetailedViewController: UIViewController {
         viewModel.$relatedRowData
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                self?.detailView?.relatedSectionView.configure(with: self?.viewModel.relatedRowData ?? [])
+                guard let self = self else { return }
+                self.detailView?.relatedSectionView.configure(with: self.viewModel.relatedRowData)
             }
             .store(in: &cancellables)
         viewModel.$isLoading
@@ -135,6 +146,16 @@ final class DetailedViewController: UIViewController {
                     button?.hideSkeleton()
                     button?.setTitle(self.viewModel.statusButtonText, for: .normal)
                 }
+            }
+            .store(in: &cancellables)
+        viewModel.$isFavorite
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isFavorite in
+                guard let self = self else { return }
+                let image = isFavorite
+                ? UIImage(systemName: "star.fill")
+                : UIImage(systemName: "star")
+                self.detailView?.favoritesButton.setImage(image, for: .normal)
             }
             .store(in: &cancellables)
     }
@@ -168,7 +189,7 @@ final class DetailedViewController: UIViewController {
         
         detailView.relatedSectionView.onItemTapped = { [weak self] id in
             guard let self else { return }
-            let vm = DetailedViewModel(animeID: id)
+            let vm = DetailedViewModel(itemId: id, contentType: viewModel.type)
             let vc = DetailedViewController(viewModel: vm)
             navigationController?.pushViewController(vc, animated: true)
         }
@@ -178,31 +199,31 @@ final class DetailedViewController: UIViewController {
 extension DetailedViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return collectionView == detailView?.collectionView ? viewModel.characters.count : viewModel.screenshots.count
+        return collectionView == detailView?.charactersCollectionView ? viewModel.characters.count : viewModel.screenshots.count
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView == detailView?.collectionView {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CharactersCell.identifier, for: indexPath) as? CharactersCell else {
+        if collectionView == detailView?.charactersCollectionView {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UniversalCollectionViewCell.identifier, for: indexPath) as? UniversalCollectionViewCell else {
                 return UICollectionViewCell()
             }
-            cell.configure(with: viewModel.characters[indexPath.item])
+            guard let character = viewModel.characters[indexPath.item].character else { return UICollectionViewCell() }
+            cell.configure(with: character)
             return cell
         } else {
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PhotoCell.identifier, for: indexPath) as? PhotoCell else {
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ScreenshotsCell.identifier, for: indexPath) as? ScreenshotsCell else {
                 return UICollectionViewCell()
             }
            
-            let url = URL(string: "https://shikimori.io" + (viewModel.screenshots[indexPath.item].original ?? ""))
+            guard let url = viewModel.screenshots[indexPath.item].original else { return UICollectionViewCell()}
             cell.configure(with: url)
             return cell
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView == detailView?.collectionView {
+        if collectionView == detailView?.charactersCollectionView {
             guard let character = viewModel.characters[indexPath.item].character else { return }
             let vc = CharacterProfileVC(viewModel: CharacterViewModel(character: character))
-//            present(vc, animated: true)
             navigationController?.pushViewController(vc, animated: true)
         } else {
             let fullScreenVC = FullScreenImagesVC(urls: viewModel.screenshotURLs, startIndex: indexPath.item)
@@ -213,15 +234,15 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return collectionView == detailView?.collectionView ? CGSize(width: 100, height: 200) : CGSize(width: 180, height: 100)
+        return collectionView == detailView?.charactersCollectionView ? CGSize(width: 100, height: 200) : CGSize(width: 180, height: 100)
     }
-    //vertical spacing
+ 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 15
     }
-    //horizontal
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        if collectionView == detailView?.collectionView {
+        if collectionView == detailView?.charactersCollectionView {
             return 0
         }else{
             return 15

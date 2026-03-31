@@ -8,24 +8,25 @@
 import Foundation
 
 
-struct CharacterDetail: Codable {
+struct CharacterDetail: Decodable {
     let id: Int
     let name: String
     let russian: String
     let description: String?
     let image: CharacterImage?
     let seyu: [Seyu]?
-    let animes: [Animes]
+    let animes: [universalType]
+    let mangas: [universalType]
 }
 
-struct Seyu: Codable{
+struct Seyu: Decodable{
     let id: Int
     let name: String?
     let russian: String?
     let image: CharacterImage?
 }
 
-struct Animes: Codable{
+struct Animes: Decodable{
     let id: Int?
     let name: String?
     let russian: String?
