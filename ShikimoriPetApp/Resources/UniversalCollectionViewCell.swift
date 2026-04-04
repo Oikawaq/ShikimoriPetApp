@@ -2,7 +2,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
-
+import SkeletonView
 final class UniversalCollectionViewCell: UICollectionViewCell {
     
     static let identifier: String = "UniversalCollectionViewCell"
@@ -13,6 +13,7 @@ final class UniversalCollectionViewCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         imageView.backgroundColor = .chalkWhite
         imageView.layer.cornerRadius = 8
+        imageView.isSkeletonable = true
         return imageView
     }()
     private let titleLabel: UILabel = {
@@ -21,11 +22,14 @@ final class UniversalCollectionViewCell: UICollectionViewCell {
         label.textColor = .basalt
         label.textAlignment = .left
         label.numberOfLines = 2
+        label.isSkeletonable = true
+        label.skeletonTextNumberOfLines = 2
         return label
     }()
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupContraints()
+        self.isSkeletonable = true
     }
     private func setupContraints(){
         contentView.addSubview(imageView)
@@ -38,7 +42,7 @@ final class UniversalCollectionViewCell: UICollectionViewCell {
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(imageView.snp.bottom).offset(4)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().inset(4)
+            make.bottom.lessThanOrEqualToSuperview().inset(4).priority(999)
         }
     }
     required init?(coder: NSCoder) {

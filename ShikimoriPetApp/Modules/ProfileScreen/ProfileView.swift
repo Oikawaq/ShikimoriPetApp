@@ -29,7 +29,7 @@ class ProfileView: UIView {
 
     lazy var userName = createLabel(title: "", size: 25, weight: .bold)
     lazy var userAge = createLabel(title: "", size: 20, weight: .medium)
-    let friendsContainer = ContainerView(title: "Друзья")
+    let friendsContainer = ContainerView(title: L10n.categories.friends)
     
     let friendsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -39,7 +39,7 @@ class ProfileView: UIView {
         collectionView.backgroundColor = .chalkWhite
         return collectionView
     }()
-    private let favoritesContainer = ContainerView(title: "Избранное")
+    private let favoritesContainer = ContainerView(title: L10n.categories.favorite)
     let favoritesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -48,6 +48,7 @@ class ProfileView: UIView {
         collectionView.backgroundColor = .chalkWhite
         return collectionView
     }()
+    let animeBar = SegmentedBar()
     // MARK: - init
     init() {
        super.init(frame: .zero)
@@ -65,7 +66,7 @@ class ProfileView: UIView {
     private func addViews(){
         addSubview(scrollView)
         scrollView.addSubview(contentStackView)
-        [headerBlock,friendsContainer, friendsCollectionView, favoritesContainer,favoritesCollectionView].forEach {
+        [headerBlock,friendsContainer, friendsCollectionView, favoritesContainer,favoritesCollectionView,animeBar].forEach {
             contentStackView.addArrangedSubview($0)
         }
         headerBlock.addSubview(profileImage)

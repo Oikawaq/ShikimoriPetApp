@@ -1,6 +1,6 @@
 import UIKit
 import SnapKit
-
+import SkeletonView
 final class DetailView: UIView {
     //MARK: UIComponents
     private let scrollView = UIScrollView()
@@ -17,15 +17,17 @@ final class DetailView: UIView {
     private let posterImageContainer: UIView = UIView()
     let posterImageView: UIImageView = {
         let iv = UIImageView()
+        iv.isSkeletonable = true
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .red
+        iv.backgroundColor = .chalkWhite
         iv.layer.cornerRadius = 8
         return iv
     }()
     
     let titleLabel: UILabel = {
         let label = UILabel()
+        label.isSkeletonable = true
         label.font = .systemFont(ofSize: 24, weight: .bold)
         label.numberOfLines = 0
         label.textColor = .basalt
@@ -40,10 +42,11 @@ final class DetailView: UIView {
     }()
     let ratingBlock = RatingBlockView()
     
-    private let infortmationContainer = ContainerView(title: "Информация")
+    private let infortmationContainer = ContainerView(title: L10n.categories.information)
     private let infoStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
+        stack.isSkeletonable = true
         stack.spacing = 10
         return stack
     }()
@@ -51,24 +54,26 @@ final class DetailView: UIView {
     let studioImage: UIImageView = {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFit
-        
+        iv.isSkeletonable = true
         iv.clipsToBounds = true
         iv.layer.compositingFilter = "multiplyBlendMode"
         iv.layer.cornerRadius = 8
         return iv
     }()
-    private let descriptionContainer = ContainerView(title: "Описание")
+    private let descriptionContainer = ContainerView(title: L10n.categories.description)
     
     let descriptionLabel: UILabel = {
         let label = UILabel()
+        label.isSkeletonable = true
         label.textColor = .basalt
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.numberOfLines = 0
+        label.skeletonTextNumberOfLines = 5
         label.lineBreakMode = .byWordWrapping
         return label
     }()
-    let relatedContainer = ContainerView(title: "Связанное")
+    let relatedContainer = ContainerView(title: L10n.categories.related)
     let relatedSectionView = ListSectionView()
     private let tagsStackView: UIStackView = {
         let stack = UIStackView()
@@ -88,11 +93,11 @@ final class DetailView: UIView {
         cv.showsHorizontalScrollIndicator = false
         return cv
     }()
-    private let authorsContainer = ContainerView(title: "Авторы")
+    private let authorsContainer = ContainerView(title: L10n.categories.authors)
     let authorsSectionView = ListSectionView()
-    private let MainHeroContainer = ContainerView(title: "Главные герои")
+    private let MainHeroContainer = ContainerView(title: L10n.categories.mainCharacters)
     
-    let screenshotsConainer = ContainerView(title: "Кадры")
+    let screenshotsConainer = ContainerView(title: L10n.categories.screenshots)
     let screenshotsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -104,7 +109,7 @@ final class DetailView: UIView {
     }()
     let userRateStatusButton: UIButton = {
         let button = UIButton()
-       
+        button.isSkeletonable = true
         button.backgroundColor = .basalt
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.titleLabel?.textColor = .chalkWhite
@@ -116,8 +121,18 @@ final class DetailView: UIView {
         super.init(frame: frame)
         addsViews()
         setupLayout()
+        setupSkeleton()
+        addsDummyToInfoBlock()
     }
-    
+    private func setupSkeleton(){
+
+        [scrollView,stackView,descriptionLabel, userRateStatusButton, relatedSectionView, relatedContainer, tagsStackView, authorsSectionView, authorsContainer,screenshotsCollectionView,charactersCollectionView,infoStackView,studioContainer,studioImage, posterImageContainer].forEach{
+            $0.isSkeletonable = true
+        }
+        scrollView.skeletonCornerRadius = 16
+       
+        
+    }
     required init?(coder: NSCoder) { fatalError() }
     
     //MARK: setupUI
@@ -126,6 +141,7 @@ final class DetailView: UIView {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 12, weight: .bold)
+        label.isSkeletonable = true
         label.textColor = .chalkWhite
         label.backgroundColor = color
         label.textAlignment = .center
@@ -141,14 +157,17 @@ final class DetailView: UIView {
     
     private func createInfoRow(title: String, value: String?) -> UIView {
         let view = UIView()
-        
+        view.isSkeletonable = true
         let keyLabel = UILabel()
         keyLabel.text = title
         keyLabel.textColor = .basalt
         keyLabel.font = .systemFont(ofSize: 14)
-        
+        keyLabel.isSkeletonable = true
+        keyLabel.skeletonTextNumberOfLines = 1
         let valueLabel = UILabel()
         valueLabel.text = value
+        valueLabel.isSkeletonable = true
+        valueLabel.skeletonTextNumberOfLines = 1
         valueLabel.textColor = .basalt
         valueLabel.font = .systemFont(ofSize: 14, weight: .medium)
         valueLabel.numberOfLines = 0
@@ -168,12 +187,22 @@ final class DetailView: UIView {
         
         return view
     }
-    
+    private func addsDummyToInfoBlock(){
+        infoStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        for _ in 0..<3{
+            let dummyRow = createInfoRow(title: "", value: "")
+            dummyRow.isSkeletonable = true
+            dummyRow.showAnimatedSkeleton(usingColor: .skeletonColor)
+            infoStackView.addArrangedSubview(dummyRow)
+        }
+        
+    }
     func configureInfoBlock(with details: [(key: String, value: String)]) {
         infoStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         details.forEach { item in
             let row = createInfoRow(title: item.key, value: item.value)
+
             infoStackView.addArrangedSubview(row)
         }
     }
@@ -225,7 +254,16 @@ final class DetailView: UIView {
         studioContainer.addSubview(studioImage)
         
     }
-    
+    func showSkeleton(color: UIColor = .skeletonColor) {
+       
+        relatedSectionView.showSkeletonRow(color: color)
+        authorsSectionView.showSkeletonRow(color: color)
+        [posterImageContainer,posterImageView, studioImage, titleLabel, userRateStatusButton, descriptionLabel, infoStackView, studioContainer, charactersCollectionView, screenshotsCollectionView].forEach{
+            $0.showAnimatedSkeleton(usingColor: color)
+            $0.skeletonCornerRadius = 16
+        }
+        scrollView.startSkeletonAnimation()
+    }
     //MARK: setupContraints
     private func setupLayout(){
         backgroundColor = .chalkWhite
@@ -237,7 +275,7 @@ final class DetailView: UIView {
         }
         stackView.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(16)
-            make.width.equalToSuperview().offset(-32)
+            make.width.equalToSuperview().offset(-32).priority(999)
         }
         posterImageContainer.snp.makeConstraints{make in
             make.height.equalTo(450)
@@ -268,5 +306,6 @@ final class DetailView: UIView {
             make.left.equalTo(posterImageView.snp.right).offset(16)
             make.trailing.equalToSuperview().inset(16)
         }
+
     }
 }

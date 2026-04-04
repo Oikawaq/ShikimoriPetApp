@@ -13,7 +13,7 @@ struct UserModel: Codable, UserRepresentable {
     let id: Int
     let nickname: String
     let fullYears: Int?
-    let image: Images?
+    let image: ImagesSize?
     
     var avatarURLString: String? {
         return image?.x148

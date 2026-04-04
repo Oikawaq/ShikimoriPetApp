@@ -4,13 +4,13 @@ import Foundation
 @MainActor
 class DetailedViewModel{
     private let itemsId: Int
-    let contentList: ContentList?
+    let contentList: ContentListModel?
     
     var type: ContentType
     
     //MARK: Published Properties
-    @Published var anime: contentItem?
-    @Published var characters: [CharacterRole] = []
+    @Published var anime: ContentItemModel?
+    @Published var characters: [CharacterRoleModel] = []
     @Published var screenshots: [Screenshots] = []
     @Published var authors: [AuthorModel] = []
     @Published var relatedAnimeList: [RelatedAnime] = []
@@ -79,7 +79,7 @@ class DetailedViewModel{
         return WatchingStatus(rawValue: rawValue) ?? .none
     }
     //MARK: init
-    init(contentList: ContentList, contentType: ContentType) {
+    init(contentList: ContentListModel, contentType: ContentType) {
         self.contentList = contentList
         self.itemsId = contentList.id
         self.type = contentType
@@ -171,6 +171,8 @@ class DetailedViewModel{
         case "manga": return "Манга"
         case "ranobe": return "Ранобэ"
         case "novel": return "Новелла"
+        case "special","tv_special": return "Специальный выпуск"
+            
         default: return anime?.kind ?? "Неизвестно"
         }
     }
@@ -190,10 +192,11 @@ class DetailedViewModel{
     }
     
     var description: String {
-        guard let rawDescription = anime?.description else {
-            return "Загрузка описания..."
-        }
-        return rawDescription.htmlStripped()
+//        guard let rawDescription = anime?.description else {
+//            return "Загрузка описания..."
+//        }
+        let rawDescription = anime?.description
+        return rawDescription?.htmlStripped() ?? ""
     }
     
     var status: String {
@@ -322,7 +325,7 @@ class DetailedViewModel{
     
     func loadCharacters(){
         NetworkManager.shared.request(endpoint: .itemMainCharacters(id: itemsId, contentType: type), method: .get)
-            .map{(roles: [CharacterRole]) in
+            .map{(roles: [CharacterRoleModel]) in
                 roles.filter{$0.roles.contains("Main")
                 }
             }
@@ -398,7 +401,6 @@ class DetailedViewModel{
     }
     
     func loadUserRate() {
-        isLoading = true
     
         NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: itemsId, contentType: type), method: .get)
             .replaceError(with: [])
@@ -406,7 +408,6 @@ class DetailedViewModel{
             .sink { [weak self] (rates: [AnimeUserRate]) in
                 guard let self = self else { return }
                 self.userRate = rates
-                self.isLoading = false
             }
             .store(in: &cancellables)
     }

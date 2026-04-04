@@ -37,6 +37,7 @@ class ProfileViewController: UIViewController {
         
         setupBindings()
         setupCollectionView()
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         viewModel.loadUserFriends()
@@ -50,13 +51,17 @@ class ProfileViewController: UIViewController {
         viewModel.$profileData
             .receive(on: DispatchQueue.main)
             .sink{[weak self] _ in
-                self?.updateUI()
+                guard let self = self else {return}
+                self.updateUI()
+               
+                self.profileView?.animeBar.configure(with: viewModel.animeSegment)
             }
             .store(in: &cancellables)
         viewModel.$userFriendsList
             .receive(on: DispatchQueue.main)
             .sink { [weak self]_ in
-                self?.profileView?.friendsCollectionView.reloadData()
+                guard let self = self else {return}
+                self.profileView?.friendsCollectionView.reloadData()
             }
             .store(in: &cancellables)
         viewModel.$userFavorites

@@ -7,19 +7,15 @@
 
 import Foundation
 
-struct ContentList: Codable {
+struct ContentListModel: Decodable {
     let id: Int
     let name: String?
     let russian: String?
-    let image: contentImage
+    let image: DefaultImageModel
     let score: String?
     let episodes: Int?
     let episodesAired: Int?
     let releasedOn: String?
     let status: String?
     let airedOn: String?
-}
-struct contentImage: Codable {
-    let original: String?
-    let preview: String?
 }

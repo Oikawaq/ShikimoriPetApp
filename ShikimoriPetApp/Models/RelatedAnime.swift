@@ -23,6 +23,6 @@ struct universalType: Decodable, UniversalCellProtocol {
     let id: Int
     let name: String
     let russian: String?
-    let image: CharacterImage?
+    let image: DefaultImageModel?
     var type: FavoriteType?
 }

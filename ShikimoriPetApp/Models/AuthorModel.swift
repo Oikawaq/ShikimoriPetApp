@@ -17,5 +17,5 @@ struct Person: Decodable {
     let id: Int
     let name: String
     let russian: String
-    let image: CharacterImage?
+    let image: DefaultImageModel?
 }

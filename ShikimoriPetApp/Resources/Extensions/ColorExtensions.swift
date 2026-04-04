@@ -12,7 +12,7 @@ extension UIColor {
     static let grayDef = UIColor(red: 0.08, green: 0.08, blue: 0.08, alpha: 1)
     static let chalkWhite = UIColor(hex: "#F2F3EF")
     static let basalt = UIColor(hex: "#2B3038")
-    
+    static let skeletonColor = UIColor(ciColor: CIColor(color: UIColor.gray.withAlphaComponent(0.4)))
     convenience init(hex: String) {
             var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
             if hexSanitized.hasPrefix("#") {

@@ -2,6 +2,7 @@ import UIKit
 import SnapKit
 import Kingfisher
 import Combine
+import SkeletonView
 
 @MainActor
 final class DetailedViewController: UIViewController {
@@ -27,35 +28,45 @@ final class DetailedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
-        setupBindings()
-        loadAllData()
+       
+        detailView?.showSkeleton()
+        
         setupButtonsAction()
         setupCallbacks()
+        
     }
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+          setupBindings()
+          loadAllData()
+      
     }
-    
     private func loadAllData(){
-        viewModel.loadUserRate()
+        
         let type = viewModel.type
-        let delay = 0.3
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 1) { self.viewModel.loadData() }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 2) { self.viewModel.loadCharacters() }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) { self.viewModel.loadAuthors(type: type)}
+        viewModel.loadData()
+        viewModel.loadUserRate()
+        viewModel.loadCharacters()
+        viewModel.loadAuthors(type: type)
+        viewModel.loadRelated()
+        let delay = 0.25
+            
             
         switch type {
             case .animes:
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 3) { self.viewModel.loadScreenshots() }
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 5) { self.viewModel.loadRelated() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) { self.viewModel.loadScreenshots() }
+//            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 4) { self.viewModel.loadRelated() }
             case .mangas:
-            [detailView?.screenshotsConainer,detailView?.screenshotsCollectionView,detailView?.relatedSectionView, detailView?.relatedContainer].forEach{
+            [detailView?.screenshotsConainer,
+             detailView?.screenshotsCollectionView,
+             detailView?.relatedSectionView,
+             detailView?.relatedContainer ].forEach{
                 $0?.isHidden = true
             }
             case .ranobe:
             detailView?.screenshotsConainer.isHidden = true
             detailView?.screenshotsCollectionView.isHidden = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay * 5) { self.viewModel.loadRelated() }
+            viewModel.loadRelated()
         }
         
     }
@@ -91,27 +102,40 @@ final class DetailedViewController: UIViewController {
     private func setupBindings() {
         viewModel.$anime
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.updateHeaderInfo()
+            .sink { [weak self] items in
+                guard let self = self else { return }
+                if items == nil {
+                    return
+                }
+                
+                self.updateHeaderInfo()
             }
             .store(in: &cancellables)
 
         viewModel.$characters
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.detailView?.charactersCollectionView.reloadData()
+            .sink { [weak self] items in
+                guard let self = self else { return }
+                guard !items.isEmpty else {
+                    return
+                }
+                self.detailView?.charactersCollectionView.hideSkeleton()
+                self.detailView?.charactersCollectionView.reloadData()
             }
             .store(in: &cancellables)
 
         viewModel.$screenshots
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                self.detailView?.screenshotsCollectionView.hideSkeleton()
                 self.detailView?.screenshotsCollectionView.reloadData()
             }
             .store(in: &cancellables)
 
         viewModel.$authorsRowData
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -120,16 +144,21 @@ final class DetailedViewController: UIViewController {
             .store(in: &cancellables)
             
         viewModel.$userRate
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                self.detailView?.userRateStatusButton.hideSkeleton()
                 self.detailView?.userRateStatusButton.setTitle(self.viewModel.statusButtonText, for: .normal)
+                
             }
             .store(in: &cancellables)
         viewModel.$relatedRowData
+            .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
+                
                 self.detailView?.relatedSectionView.configure(with: self.viewModel.relatedRowData)
             }
             .store(in: &cancellables)
@@ -139,13 +168,13 @@ final class DetailedViewController: UIViewController {
                 guard let self = self else { return }
                 let button = self.detailView?.userRateStatusButton
                 
-                if isLoading {
-                    button?.setTitle("", for: .normal)
-                    button?.showSkeleton()
-                } else {
-                    button?.hideSkeleton()
-                    button?.setTitle(self.viewModel.statusButtonText, for: .normal)
-                }
+//                if isLoading {
+//                    button?.setTitle("", for: .normal)
+//                    button?.showSkeleton()
+//                } else {
+//                    button?.hideSkeleton()
+//                    button?.setTitle(self.viewModel.statusButtonText, for: .normal)
+//                }
             }
             .store(in: &cancellables)
         viewModel.$isFavorite
@@ -161,6 +190,10 @@ final class DetailedViewController: UIViewController {
     }
     private func updateHeaderInfo() {
         guard let detailView = detailView else { return }
+        detailView.posterImageView.hideSkeleton()
+        detailView.titleLabel.hideSkeleton()
+        detailView.descriptionLabel.hideSkeleton()
+        detailView.studioImage.hideSkeleton()
         
         detailView.titleLabel.text = viewModel.title
         detailView.descriptionLabel.text = viewModel.description
@@ -196,11 +229,18 @@ final class DetailedViewController: UIViewController {
     }
 }
 // MARK: - CollectionView DataSource & Delegate
-extension DetailedViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+extension DetailedViewController: UICollectionViewDelegate, SkeletonCollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> SkeletonView.ReusableCellIdentifier {
+        return skeletonView == detailView?.charactersCollectionView ? UniversalCollectionViewCell.identifier : ScreenshotsCell.identifier
+    }
+    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return skeletonView == detailView?.charactersCollectionView ? 5: 6
+    }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return collectionView == detailView?.charactersCollectionView ? viewModel.characters.count : viewModel.screenshots.count
     }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == detailView?.charactersCollectionView {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UniversalCollectionViewCell.identifier, for: indexPath) as? UniversalCollectionViewCell else {

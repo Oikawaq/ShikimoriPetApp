@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		426E08A92F7D0985000FD7C8 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 426E08A82F7D0985000FD7C8 /* SkeletonView */; };
 		42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8A72F5EA92A0059B01B /* Kingfisher */; };
 		42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8AA2F5EA9360059B01B /* SnapKit */; };
 /* End PBXBuildFile section */
@@ -71,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */,
+				426E08A92F7D0985000FD7C8 /* SkeletonView in Frameworks */,
 				42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -134,6 +136,7 @@
 			packageProductDependencies = (
 				42DAF8A72F5EA92A0059B01B /* Kingfisher */,
 				42DAF8AA2F5EA9360059B01B /* SnapKit */,
+				426E08A82F7D0985000FD7C8 /* SkeletonView */,
 			);
 			productName = ShikimoriPetApp;
 			productReference = 4284A6352F0A8F1E007DBB31 /* ShikimoriPetApp.app */;
@@ -220,6 +223,7 @@
 			packageReferences = (
 				42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				42DAF8A92F5EA9360059B01B /* XCRemoteSwiftPackageReference "SnapKit" */,
+				426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4284A6362F0A8F1E007DBB31 /* Products */;
@@ -600,6 +604,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Juanpe/SkeletonView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.31.0;
+			};
+		};
 		42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -619,6 +631,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		426E08A82F7D0985000FD7C8 /* SkeletonView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */;
+			productName = SkeletonView;
+		};
 		42DAF8A72F5EA92A0059B01B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */;

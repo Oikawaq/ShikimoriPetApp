@@ -1,19 +1,23 @@
 
 import UIKit
 import SnapKit
-
+import SkeletonView
 final class ListSectionView: UIView {
     var onItemTapped: ((Int) -> Void)?
     private let mainStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.spacing = 0
+        stack.isSkeletonable = true
         return stack
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.isSkeletonable = true
         setupLayout()
+        showDummyRows()
+      
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -24,17 +28,30 @@ final class ListSectionView: UIView {
             make.edges.equalToSuperview()
         }
     }
-    
+    func showSkeletonRow(color: UIColor){
+        showDummyRows()
+        layoutIfNeeded()
+        mainStack.showAnimatedSkeleton(usingColor: color)
+    }
     struct RowData {
         let title: String
         let subtitle: String
         let imageUrl: String?
         let id: Int?
     }
-
-    func configure(with data: [RowData]) {
+    private func showDummyRows() {
         mainStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
+        for _ in 0..<4 {
+            let row = RowView(name: "", role: "", imageUrl: nil)
+            row.isSkeletonable = true
+            mainStack.addArrangedSubview(row)
+        }
+    }
+    
+    func configure(with data: [RowData]) {
+        mainStack.hideSkeleton()
+        mainStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
+
         data.enumerated().prefix(4).forEach { index, item in
             let row = RowView(
                 name: item.title,
@@ -45,21 +62,11 @@ final class ListSectionView: UIView {
                 let tap = UITapGestureRecognizer()
                 row.addGestureRecognizer(tap)
                 row.isUserInteractionEnabled = true
+                row.isSkeletonable = true
                 tap.addTarget(self, action: #selector(rowTapped(_:)))
                 row.tag = id
             }
             mainStack.addArrangedSubview(row)
-            
-//            if index < data.count - 1 {
-//                let separator = UIView()
-//                separator.backgroundColor = .basalt
-//                
-//                separator.snp.makeConstraints {
-//                    $0.height.equalTo(1)
-//
-//                }
-//                mainStack.addArrangedSubview(separator)
-//            }
         }
     }
     @objc private func rowTapped(_ gesture: UITapGestureRecognizer) {

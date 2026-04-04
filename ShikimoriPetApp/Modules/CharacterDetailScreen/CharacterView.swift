@@ -33,8 +33,6 @@ class CharacterView: UIView {
         let iv = UIImageView()
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
-        iv.backgroundColor = .blue
-        
         iv.layer.cornerRadius = 8
         return iv
     }()
@@ -44,7 +42,7 @@ class CharacterView: UIView {
         button.tintColor = .basalt
         return button
     }()
-    private let descriptionContainer = ContainerView(title: "Описание")
+    private let descriptionContainer = ContainerView(title: L10n.categories.description)
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.textColor = .basalt
@@ -54,10 +52,10 @@ class CharacterView: UIView {
         label.lineBreakMode = .byWordWrapping
         return label
     }()
-    private let seyuContainer = ContainerView(title: "Сейю")
+    private let seyuContainer = ContainerView(title: L10n.categories.seyu)
     let seyuStackView = ListSectionView()
     
-    private let relatedAnimeContainer = ContainerView(title: "Аниме")
+    private let relatedAnimeContainer = ContainerView(title: L10n.categories.anime)
     let relatedAnimeCollectionView : UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -66,7 +64,7 @@ class CharacterView: UIView {
         cv.register(UniversalCollectionViewCell.self, forCellWithReuseIdentifier: UniversalCollectionViewCell.identifier)
         return cv
     }()
-    private let relatedMangaContainer = ContainerView(title: "Манга")
+    private let relatedMangaContainer = ContainerView(title: L10n.categories.manga)
     let relatedMangaCollectionView : UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal

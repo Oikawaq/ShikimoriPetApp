@@ -1,18 +1,12 @@
 //
-//  Universal type.swift
+//  UniversalType.swift
 //  ShikimoriPetApp
 //
-//  Created by Иван Илькив on 3/25/26.
+//  Created by Иван Илькив on 3/31/26.
 //
 
-import Foundation
-enum FavoriteType: String, Decodable {
-    case anime = "Anime"
-    case manga = "Manga"
-    case character = "Character"
-    case ranobe = "Ranobe"
-}
 
+import Foundation
 struct UniversalType: Decodable, UniversalCellProtocol{
     var cellTitle: String { russian ?? name }
     
@@ -25,4 +19,3 @@ struct UniversalType: Decodable, UniversalCellProtocol{
     let image: String?
     var type: FavoriteType?
 }
-

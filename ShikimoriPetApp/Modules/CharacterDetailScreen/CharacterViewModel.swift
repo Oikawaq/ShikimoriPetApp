@@ -4,12 +4,12 @@ import Combine
 
 class CharacterViewModel{
     
-    var character: Character?
+    var character: CharacterModel?
     let characterID: Int
     @Published var isFavorite: Bool = false
-    @Published var fullCharacterDetails: CharacterDetail?
+    @Published var fullCharacterDetails: CharacterDetailModel?
     var cancellables: Set<AnyCancellable> = []
-    init (character: Character) {
+    init (character: CharacterModel) {
         self.characterID = character.id
         self.character = character
         setupFavoritesBinding()

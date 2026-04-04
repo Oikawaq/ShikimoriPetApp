@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class ProfileViewModel {
     var userId: Int
@@ -17,6 +18,30 @@ class ProfileViewModel {
                  + favorites.characters.map { var i = $0; i.type = .character; return i }
                  + favorites.mangas.map { var i = $0; i.type = .manga; return i }
                  + favorites.ranobe.map { var i = $0; i.type = .ranobe; return i }
+    }
+    
+    var animeArraySize: Int{
+        if let animeArray = profileData?.stats.statuses.anime{
+            let totalSize = animeArray.filter{ $0.name != "completed" && $0.name != "dropped"}
+                .reduce(0){$0 + $1.size }
+            return totalSize
+            
+        }
+        return 0
+    }
+    var animeSegment: [Segment]{
+        let animeSize: Int = profileData?.stats.statuses.anime[2].size ?? 0
+ 
+        let segment1 = Segment(value: animeSize, color: .blue, label: "Просмотренно")
+        let segment2 = Segment(value: animeArraySize, color: .red, label: "Просмотренно")
+        
+        if let segments = profileData?.stats.statuses.anime{
+            
+        }
+               
+        
+        let array: Array = [segment1,segment2]
+        return array
     }
     var userData: UserModel?
     

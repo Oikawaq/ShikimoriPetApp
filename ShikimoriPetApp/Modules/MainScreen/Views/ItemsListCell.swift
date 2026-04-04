@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
-
+import SkeletonView
 class ItemsListCell: UICollectionViewCell {
     
     static let identifier: String = "AnimeListCell"
@@ -18,20 +18,23 @@ class ItemsListCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 8
+        iv.isSkeletonable = true
         return iv
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
-        label.numberOfLines = 2
+        label.numberOfLines = 1
         label.textColor = .basalt
+        label.isSkeletonable = true
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        self.isSkeletonable = true
     }
     
     required init?(coder: NSCoder) {
@@ -40,7 +43,6 @@ class ItemsListCell: UICollectionViewCell {
     private func setupUI(){
         contentView.addSubview(posterImageView)
         contentView.addSubview(titleLabel)
-        
         posterImageView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalTo(contentView.snp.height).multipliedBy(0.9)
@@ -53,7 +55,7 @@ class ItemsListCell: UICollectionViewCell {
         }
 }
     
-    func configure(with anime: ContentList){
+    func configure(with anime: ContentListModel){
         titleLabel.text = anime.russian ?? anime.name
         
         if let imageUrlString = anime.image.original,

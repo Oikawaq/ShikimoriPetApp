@@ -58,13 +58,13 @@ class AuthVC: UIViewController {
             authView?.authButton.isHidden = false
             authView?.codeTextField.isHidden = true
             authView?.redeemCodeButton.isHidden = true
-            authView?.label.text = "Авторизация"
+            authView?.label.text = L10n.Auth.authorization
             
         case .waitingForCode:
             authView?.authButton.isHidden = true
             authView?.codeTextField.isHidden = false
             authView?.redeemCodeButton.isHidden = false
-            authView?.label.text = "Введите код из \nбраузера"
+            authView?.label.text = L10n.Auth.placeholder
             
         case .loading:
             authView?.activityIndicator.startAnimating()

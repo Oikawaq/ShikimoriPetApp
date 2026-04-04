@@ -9,7 +9,7 @@ import Foundation
 import Combine
 
 class MainViewModel {
-    @Published var content: [ContentList] = []
+    @Published var content: [ContentListModel] = []
     @Published var contentType: ContentType = .animes
 
     var currentPage: Int = 1

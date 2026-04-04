@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import SkeletonView
 
 final class MainView: UIView {
     
@@ -20,7 +21,7 @@ final class MainView: UIView {
         configuration.baseBackgroundColor = .chalkWhite.withAlphaComponent(0.3)
         configuration.image = UIImage(systemName: "chevron.down")
         let button = UIButton(configuration: configuration)
-        button.setTitle("Аниме", for: .normal)
+        button.setTitle(L10n.categories.anime, for: .normal)
         button.setTitleColor(.chalkWhite, for: .normal)
         button.showsMenuAsPrimaryAction = true
         return button
@@ -37,11 +38,11 @@ final class MainView: UIView {
     lazy var collectionView: UICollectionView = {
        let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.backgroundColor = .chalkWhite
         cv.register(ItemsListCell.self, forCellWithReuseIdentifier: ItemsListCell.identifier)
         cv.register(FooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterView.identifier)
+        cv.isSkeletonable = true
         return cv
     }()
     
@@ -88,6 +89,11 @@ final class MainView: UIView {
             make.bottom.equalToSuperview()
         }
         
+    }
+    func showSkeleton(color: UIColor = .skeletonColor){
+        
+        collectionView.showAnimatedSkeleton(usingColor: color)
+        collectionView.startSkeletonAnimation()
     }
     
 }
