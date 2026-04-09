@@ -49,12 +49,15 @@ class ProfileView: UIView {
         return collectionView
     }()
     let animeBar = SegmentedBar()
+    let mangaBar = SegmentedBar()
+    private let animeMangaContainer = ContainerView(title: "\(L10n.categories.anime) / \(L10n.categories.manga)")
     // MARK: - init
     init() {
        super.init(frame: .zero)
         backgroundColor = .chalkWhite
         addViews()
         setupConstraints()
+        animeBar.isUserInteractionEnabled = true
     }
 
     required init?(coder: NSCoder) {
@@ -66,7 +69,7 @@ class ProfileView: UIView {
     private func addViews(){
         addSubview(scrollView)
         scrollView.addSubview(contentStackView)
-        [headerBlock,friendsContainer, friendsCollectionView, favoritesContainer,favoritesCollectionView,animeBar].forEach {
+        [headerBlock,animeMangaContainer,animeBar,mangaBar,friendsContainer, friendsCollectionView, favoritesContainer,favoritesCollectionView].forEach {
             contentStackView.addArrangedSubview($0)
         }
         headerBlock.addSubview(profileImage)

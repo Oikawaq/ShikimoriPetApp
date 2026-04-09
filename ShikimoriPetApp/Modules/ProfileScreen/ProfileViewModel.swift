@@ -19,29 +19,49 @@ class ProfileViewModel {
                  + favorites.mangas.map { var i = $0; i.type = .manga; return i }
                  + favorites.ranobe.map { var i = $0; i.type = .ranobe; return i }
     }
-    
-    var animeArraySize: Int{
-        if let animeArray = profileData?.stats.statuses.anime{
-            let totalSize = animeArray.filter{ $0.name != "completed" && $0.name != "dropped"}
-                .reduce(0){$0 + $1.size }
-            return totalSize
-            
-        }
-        return 0
+    var animeBlockDescription: String {
+        return createDescriptionForSegmentList(
+            list: createSegmentList(list: profileData?.stats.statuses.anime, color: .systemBlue)
+           )
     }
-    var animeSegment: [Segment]{
-        let animeSize: Int = profileData?.stats.statuses.anime[2].size ?? 0
- 
-        let segment1 = Segment(value: animeSize, color: .blue, label: "Просмотренно")
-        let segment2 = Segment(value: animeArraySize, color: .red, label: "Просмотренно")
+    var mangaBlockDescription: String{
+        return createDescriptionForSegmentList(
+            list: createSegmentList(list: profileData?.stats.statuses.manga, color: .systemPink)
+           )
+    }
+    func createDescriptionForSegmentList(list: [Segment]) -> String {
+        let total = list.reduce(0) { $0 + $1.value }
+        return total > 0 ? "Список: \(total)" : "Список пуст"
+    }
+    func createSegmentList(list: [ItemsUniversalModel]?, color: UIColor) -> [Segment] {
+        guard let array = list else { return [] }
         
-        if let segments = profileData?.stats.statuses.anime{
-            
+        var completedSize = 0
+        var activeSize = 0
+        var droppedSize = 0
+        let color = color
+        array.forEach { item in
+            let status = WatchingStatus(rawValue: item.name) ?? .none
+            switch status {
+            case .completed:
+                completedSize += item.size
+            case .watching, .rewatching, .planned, .onHold:
+                activeSize += item.size
+            case .dropped:
+                droppedSize += item.size
+            case .none:
+                break
+            }
         }
-               
         
-        let array: Array = [segment1,segment2]
-        return array
+             return [
+                Segment(value: completedSize, color: color,  status: .completed),
+                Segment(value: activeSize,    color: color.withAlphaComponent(0.5),   status: .watching),
+                Segment(value: droppedSize,   color: .systemGray,  status: .dropped)
+            ].filter { $0.value > 0 }
+            .sorted { $0.value > $1.value }
+       
+        
     }
     var userData: UserModel?
     

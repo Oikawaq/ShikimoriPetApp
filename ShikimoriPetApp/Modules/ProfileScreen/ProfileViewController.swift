@@ -12,7 +12,7 @@ import Combine
 class ProfileViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     let viewModel: ProfileViewModel
-    let userID = UserDefaults.standard.integer(forKey: "current_user_id")
+    let userID = UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
     //MARK: init
     init(viewModel: ProfileViewModel) {
         self.viewModel = viewModel
@@ -34,7 +34,7 @@ class ProfileViewController: UIViewController {
         //MARK: lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupTargets()
         setupBindings()
         setupCollectionView()
         
@@ -53,8 +53,7 @@ class ProfileViewController: UIViewController {
             .sink{[weak self] _ in
                 guard let self = self else {return}
                 self.updateUI()
-               
-                self.profileView?.animeBar.configure(with: viewModel.animeSegment)
+             
             }
             .store(in: &cancellables)
         viewModel.$userFriendsList
@@ -73,6 +72,16 @@ class ProfileViewController: UIViewController {
             .store(in: &cancellables)
     }
 
+    @objc func isUserListTapped(){
+        let vm = ContentListViewModel(type: .animes)
+        let vc = ContentListViewController(viewModel: vm)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    private func setupTargets(){
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(isUserListTapped))
+        profileView?.animeBar.label.addGestureRecognizer(tapGesture)
+        
+    }
     private func updateUI(){
         guard let profileView else {return}
         profileView.userName.text = viewModel.username
@@ -86,6 +95,9 @@ class ProfileViewController: UIViewController {
         }
         profileView.userAge.text = viewModel.userAge
         
+        profileView.animeBar.configure(with: viewModel.createSegmentList(list: viewModel.profileData?.stats.statuses.anime, color: .systemBlue), description: viewModel.animeBlockDescription)
+        profileView.mangaBar.configure(with: viewModel.createSegmentList(list: viewModel.profileData?.stats.statuses.manga, color: .magenta), description: viewModel.mangaBlockDescription)
+        
     }
    private func setupCollectionView(){
        profileView?.friendsCollectionView.delegate = self
@@ -96,7 +108,7 @@ class ProfileViewController: UIViewController {
     }
 
 }
-
+    //MARK: CollectionViewSetup
 extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return collectionView == profileView?.friendsCollectionView ? viewModel.userFriendsList.count : viewModel.favoritesList.count

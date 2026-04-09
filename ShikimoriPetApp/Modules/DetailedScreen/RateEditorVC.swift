@@ -176,7 +176,7 @@ class RateEditorVC: UIViewController {
     }
     
     private func updateStatus(){
-        let statuses: [DetailedViewModel.WatchingStatus] = [.watching, .completed, .onHold, .planned, .dropped, .none]
+        let statuses: [WatchingStatus] = [.watching, .completed, .onHold, .planned, .dropped, .none]
 
         let actions = statuses.map { status in
             return UIAction(title: status.ruDescription, state: status == viewModel.watchingStatus ? .on : .off) {[weak self] _ in

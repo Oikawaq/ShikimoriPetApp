@@ -220,8 +220,8 @@ class AuthManager {
              
                     print("Мой ID: \(user.id)")
 
-                    UserDefaults.standard.set(user.id, forKey: "current_user_id")
-                    UserDefaults.standard.set(user.nickname, forKey: "current_user_nickname")
+                    UserDefaults.standard.set(user.id, forKey: UserDefaultsEnum.userId.value)
+                    UserDefaults.standard.set(user.nickname, forKey: UserDefaultsEnum.nickname.value)
                     
                 })
                 .store(in: &cancellables)

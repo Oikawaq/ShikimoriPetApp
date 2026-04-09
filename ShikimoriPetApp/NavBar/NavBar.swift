@@ -8,7 +8,7 @@
 import UIKit
 
 class TabBarController: UITabBarController {
-    let userId = UserDefaults.standard.integer(forKey: "current_user_id")
+    let userId = UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
     override func viewDidLoad() {
         super.viewDidLoad()
         setupVCs()

@@ -2,19 +2,19 @@
 import Foundation
 import Combine
 final class RateEditorViewModel {
-    var watchingStatus: DetailedViewModel.WatchingStatus
+    var watchingStatus: WatchingStatus
     let maxEpisodes: Int
     var currentScore: Int
     @Published var currentEpisodes: Int
-    @Published var currentStatus: DetailedViewModel.WatchingStatus
-    var onSave: ((DetailedViewModel.WatchingStatus, Int, Int) -> Void)?
+    @Published var currentStatus: WatchingStatus
+    var onSave: ((WatchingStatus, Int, Int) -> Void)?
     
     init(
-        watchingStatus: DetailedViewModel.WatchingStatus,
+        watchingStatus: WatchingStatus,
         maxEpisodes: Int,
         currentScore: Int,
         currentEpisodes: Int,
-        onSave: ((DetailedViewModel.WatchingStatus, Int, Int) -> Void)?
+        onSave: ((WatchingStatus, Int, Int) -> Void)?
     ) {
         
         self.watchingStatus = watchingStatus

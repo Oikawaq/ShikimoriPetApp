@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 switch result {
                 case .success(_):
                     AuthManager.shared.authState = .authorized
-                    let userId = UserDefaults.standard.integer(forKey: "current_user_id")
+                    let userId = UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
                     FavouritesManager.shared.loadFavorites(userID: userId)
                     self?.showMainScreen()
                 case .failure(_):

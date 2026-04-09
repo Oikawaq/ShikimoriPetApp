@@ -46,4 +46,7 @@ enum L10n {
         static let favorite = "Избранное"
         static let friends = "Друзья"
     }
+    enum userRateList{
+        static let anime = "Тут будет отображен ваш список аниме"
+    }
 }

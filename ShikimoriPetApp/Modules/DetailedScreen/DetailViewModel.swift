@@ -23,7 +23,7 @@ class DetailedViewModel{
     private var cancellables = Set<AnyCancellable>()
     
     var userID: Int {
-        UserDefaults.standard.integer(forKey: "current_user_id")
+        UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
     }
     var score: String {
         return contentList?.score ?? anime?.score ?? "Нет информации"
@@ -58,22 +58,7 @@ class DetailedViewModel{
             TagData(text: status, type: statusType)
         ]
     }
-    enum WatchingStatus: String {
-        case planned, watching, rewatching, completed, dropped
-        case onHold = "on_hold"
-        case none = ""
-        var ruDescription: String {
-            switch self {
-            case .planned:    return "Запланировано"
-            case .watching:   return "Смотрю"
-            case .rewatching: return "Пересматриваю"
-            case .completed:  return "Завершено"
-            case .onHold:     return "На паузе"
-            case .dropped:    return "Брошено"
-            case .none:       return "Добавить в список"
-            }
-        }
-    }
+
     var watchingStatus: WatchingStatus {
         let rawValue = userRate.first?.status ?? ""
         return WatchingStatus(rawValue: rawValue) ?? .none

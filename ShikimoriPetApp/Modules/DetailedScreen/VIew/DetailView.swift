@@ -86,12 +86,12 @@ final class DetailView: UIView {
     let charactersCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.register(UniversalCollectionViewCell.self, forCellWithReuseIdentifier: UniversalCollectionViewCell.identifier)
         cv.backgroundColor = .clear
         cv.showsHorizontalScrollIndicator = false
         return cv
+
     }()
     private let authorsContainer = ContainerView(title: L10n.categories.authors)
     let authorsSectionView = ListSectionView()

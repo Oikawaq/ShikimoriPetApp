@@ -28,4 +28,14 @@ extension UIColor {
             
             self.init(red: r, green: g, blue: b, alpha: 1.0)
         }
+    static let background = UIColor{trait in
+        return trait.userInterfaceStyle == .dark ? .black : UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
+    }
+    static let bubbleBackground = UIColor { trait in
+            return trait.userInterfaceStyle == .dark ? UIColor(red: 28/255, green: 28/255, blue: 30/255, alpha: 1.0) : .white
+        }
+
+        static let mainText = UIColor { trait in
+            return trait.userInterfaceStyle == .dark ? .white : .black
+        }
 }
