@@ -7,15 +7,15 @@ final class RatingBlockView: UIView {
     
     let scoreNumberLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 28, weight: .bold) // Чуть крупнее для акцента
-        label.textColor = .basalt
+        label.font = .systemFont(ofSize: 28, weight: .bold) 
+        label.textColor = .textColor
         return label
     }()
 
     let scoreTextLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .basalt
+        label.textColor = .textColor
         return label
     }()
     

@@ -27,5 +27,6 @@ final class RateEditorViewModel {
     
     func save() {
         onSave?(currentStatus, currentScore, currentEpisodes)
+        print(currentStatus)
     }
 }

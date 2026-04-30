@@ -17,7 +17,7 @@ final class ListSectionView: UIView {
         self.isSkeletonable = true
         setupLayout()
         showDummyRows()
-      
+     
     }
 
     required init?(coder: NSCoder) { fatalError() }
@@ -33,7 +33,7 @@ final class ListSectionView: UIView {
         layoutIfNeeded()
         mainStack.showAnimatedSkeleton(usingColor: color)
     }
-    struct RowData {
+    struct RowData: Equatable {
         let title: String
         let subtitle: String
         let imageUrl: String?

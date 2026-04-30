@@ -19,7 +19,7 @@ final class UniversalCollectionViewCell: UICollectionViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .semibold)
-        label.textColor = .basalt
+        label.textColor = .textColor
         label.textAlignment = .left
         label.numberOfLines = 2
         label.isSkeletonable = true

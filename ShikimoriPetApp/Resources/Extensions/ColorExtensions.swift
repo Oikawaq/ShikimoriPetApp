@@ -28,14 +28,32 @@ extension UIColor {
             
             self.init(red: r, green: g, blue: b, alpha: 1.0)
         }
-    static let background = UIColor{trait in
-        return trait.userInterfaceStyle == .dark ? .black : UIColor(red: 242/255, green: 242/255, blue: 247/255, alpha: 1.0)
-    }
-    static let bubbleBackground = UIColor { trait in
-            return trait.userInterfaceStyle == .dark ? UIColor(red: 28/255, green: 28/255, blue: 30/255, alpha: 1.0) : .white
-        }
+    static let background = UIColor { traitCollection in
+          traitCollection.userInterfaceStyle == .dark
+          ? UIColor(hex: "#1C1C1E")
+          : UIColor(hex: "#F2F2F7")
+      }
 
-        static let mainText = UIColor { trait in
-            return trait.userInterfaceStyle == .dark ? .white : .black
-        }
+      static let bubbleBackground = UIColor { traitCollection in
+          traitCollection.userInterfaceStyle == .dark
+          ? UIColor(hex: "#2C2C2E")
+          : UIColor(hex: "#FFFFFF")
+      }
+      
+      // Основной текст
+      static let textColor = UIColor { traitCollection in
+          traitCollection.userInterfaceStyle == .dark
+          ? UIColor(hex: "#FFFFFF")
+          : UIColor(hex: "#000000")
+      }
+      
+      // Второстепенный текст
+      static let secondaryText = UIColor { traitCollection in
+          traitCollection.userInterfaceStyle == .dark
+          ? UIColor(hex: "#8D8D93")
+          : UIColor(hex: "#6C6C70")
+      }
+      
+      // Акцентный цвет — синий Telegram
+      static let tgAccent = UIColor(hex: "#2AABEE")
 }

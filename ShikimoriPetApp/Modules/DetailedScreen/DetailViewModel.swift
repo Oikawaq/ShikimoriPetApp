@@ -58,7 +58,24 @@ class DetailedViewModel{
             TagData(text: status, type: statusType)
         ]
     }
-
+    var NumberOfSections: [DetailedSection]{
+        let sections =  DetailedSection.allCases.filter { section in
+            switch section {
+            case .posters: return type == .animes
+            case .studio: return type == .animes
+            case .related:
+                      print("related filter: \(relatedRowData.count)") // <- добавь
+                      return !relatedRowData.isEmpty
+                  case .authors:
+                      print("authors filter: \(authorsRowData.count)") // <- добавь
+                      return !authorsRowData.isEmpty
+                
+            default: return true
+            }
+        }
+        print("sections: \(sections)")
+        return sections
+    }
     var watchingStatus: WatchingStatus {
         let rawValue = userRate.first?.status ?? ""
         return WatchingStatus(rawValue: rawValue) ?? .none
@@ -100,9 +117,9 @@ class DetailedViewModel{
         return URL(string: fullPath)
     }
     var studiosImage: URL? {
-        let fullpath = "https://shikimori.io" + (anime?.studios?.first?.image ?? "")
+        guard let url = anime?.studios?.first?.image else { return nil}
+        let fullpath = "https://shikimori.io" + url
         return URL(string: fullpath)
-        
     }
     var infoDetails: [(key: String, value: String)] {
         var details: [(key: String, value: String)] = []
@@ -177,9 +194,6 @@ class DetailedViewModel{
     }
     
     var description: String {
-//        guard let rawDescription = anime?.description else {
-//            return "Загрузка описания..."
-//        }
         let rawDescription = anime?.description
         return rawDescription?.htmlStripped() ?? ""
     }
@@ -196,7 +210,12 @@ class DetailedViewModel{
     var year: String {
         return String(contentList?.airedOn?.prefix(4) ?? anime?.airedOn?.prefix(4) ?? "??")
     }
-    var screenshotURLs: [URL] {
+    var screenshotsPreview: [URL] {
+        return screenshots.compactMap {
+            URL(string: "https://shikimori.io" + ($0.preview ?? ""))
+        }
+    }
+    var screenshotOriginal: [URL]{
         return screenshots.compactMap {
             URL(string: "https://shikimori.io" + ($0.original ?? ""))
         }
@@ -239,12 +258,24 @@ class DetailedViewModel{
     }
 
     //MARK: Network Methods
+    func loadAllData(){
+        loadData()
+        loadUserRate()
+        loadCharacters()
+        loadRelated()
+        loadAuthors(type: type)
+        
+        if type == .animes {
+            loadScreenshots()
+        }
+    }
     func updateFullRate(status: WatchingStatus, score: Int, episodes: Int) {
+        if status == .none {
+            deleteRate()
+        }
         if userRate.first?.id == nil {
             createRate(status: status, score: score, episodes: episodes)
-        } else if status == .none {
-            deleteRate()
-        } else {
+        }else {
             updateRate(status: status, score: score, episodes: episodes)
         }
     }
@@ -263,9 +294,15 @@ class DetailedViewModel{
         guard let rateID = userRate.first?.id else { return }
         NetworkManager.shared.requestVoid(endpoint: .deleteUserRate(linkID: rateID), method: .delete)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] in
+            .sink(receiveCompletion: {[weak self]  completion in
+                
+                switch completion{
+                case .finished:
                 self?.userRate = []
-            })
+                case .failure(let error):
+                    print("Ошибка, \(error)")
+                }
+            }, receiveValue: { _ in })
             .store(in: &cancellables)
     }
     
@@ -285,7 +322,7 @@ class DetailedViewModel{
             "user_rate": [
                 "user_id": userID,
                 "target_id": itemsId,
-                "target_type": type,
+                "target_type": type.apiPath,
                 "status": status.rawValue,
                 "score": score,
                 "episodes": episodes

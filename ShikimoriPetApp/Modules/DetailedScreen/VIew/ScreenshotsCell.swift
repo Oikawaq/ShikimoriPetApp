@@ -23,15 +23,14 @@ final class ScreenshotsCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with url: String?) {
-        if let url = url{
-            let fullpath = URL(string: ("https://shikimori.io" + url))
-            imageView.kf.setImage(with: fullpath,
+    func configure(with url: URL?) {
+       
+            imageView.kf.setImage(with: url,
                                   options: [
                                       .backgroundDecode,
                                       .cacheOriginalImage
                                   ])
-        }
+        
         
     }
 }

@@ -127,14 +127,14 @@ extension CharacterProfileVC: UICollectionViewDelegateFlowLayout, UICollectionVi
             let animeID = viewModel.fullCharacterDetails?.animes[indexPath.item].id ?? 0
             
             let vm = DetailedViewModel(itemId: animeID, contentType: .animes)
-            let vc = DetailedViewController(viewModel: vm)
-            navigationController?.pushViewController(vc, animated: true)
+//            let vc = DetailedViewController(viewModel: vm)
+//            navigationController?.pushViewController(vc, animated: true)
         }else{
             let mangaId = viewModel.fullCharacterDetails?.mangas[indexPath.item].id ?? 0
             
             let vm = DetailedViewModel(itemId: mangaId, contentType: .mangas)
-            let vc = DetailedViewController(viewModel: vm)
-            navigationController?.pushViewController(vc, animated: true)
+//            let vc = DetailedViewController(viewModel: vm)
+//            navigationController?.pushViewController(vc, animated: true)
         }
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

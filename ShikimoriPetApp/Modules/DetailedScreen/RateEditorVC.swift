@@ -164,7 +164,7 @@ class RateEditorVC: UIViewController {
     }
         //MARK: Objc funcs
     @objc private func saveTapped() {
-        viewModel.onSave?(viewModel.currentStatus, viewModel.currentEpisodes, viewModel.currentScore)
+        viewModel.save()
         dismiss(animated: true)
     }
     @objc private func cancelTapped() { dismiss(animated: true) }

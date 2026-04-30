@@ -9,4 +9,5 @@ import Foundation
 
 struct Screenshots: Codable {
     let original: String?
+    let preview: String?
 }

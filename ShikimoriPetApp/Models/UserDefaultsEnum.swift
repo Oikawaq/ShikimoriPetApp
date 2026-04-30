@@ -8,8 +8,8 @@
 import Foundation
 
 enum UserDefaultsEnum: String, Codable {
-    case userId = "current_user_id"
-    case nickname = "current_user_nickname"
+    case userId /*= "current_user_id"*/
+    case nickname /*= "current_user_nickname"*/
     
     var value: String{
         switch self {
