@@ -18,11 +18,11 @@ final class MainView: UIView {
         configuration.imagePlacement = .trailing
         configuration.imagePadding = 10
         configuration.buttonSize = .medium
-        configuration.baseBackgroundColor = .chalkWhite.withAlphaComponent(0.3)
+        configuration.baseBackgroundColor = .bubbleBackground
         configuration.image = UIImage(systemName: "chevron.down")
         let button = UIButton(configuration: configuration)
         button.setTitle(L10n.categories.anime, for: .normal)
-        button.setTitleColor(.chalkWhite, for: .normal)
+        button.setTitleColor(.textColor, for: .normal)
         button.showsMenuAsPrimaryAction = true
         return button
     }()
@@ -32,14 +32,14 @@ final class MainView: UIView {
         label.text = L10n.MainPage.description
         label.font = UIFont.systemFont(ofSize: 10)
         label.textAlignment = .left
-        label.textColor = .chalkWhite
+        label.textColor = .textColor
         return label
     }()
     lazy var collectionView: UICollectionView = {
        let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .chalkWhite
+        cv.backgroundColor = .background
         cv.register(ItemsListCell.self, forCellWithReuseIdentifier: ItemsListCell.identifier)
         cv.register(FooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterView.identifier)
         cv.isSkeletonable = true
@@ -48,7 +48,7 @@ final class MainView: UIView {
     
     let footerView: UICollectionReusableView = {
         let view = UICollectionReusableView()
-        view.backgroundColor = .chalkWhite
+        view.backgroundColor = .background
         return view
     }()
     
@@ -72,7 +72,7 @@ final class MainView: UIView {
     }
     private func setupUI(){
         
-        backgroundColor = UIColor.basalt
+        backgroundColor = UIColor.background
         
         typeSelectorButton.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(-40)

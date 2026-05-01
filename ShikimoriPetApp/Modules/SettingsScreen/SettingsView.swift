@@ -17,30 +17,31 @@ class SettingsView: UIView {
         label.text = L10n.Settings.title
         label.textAlignment = .center
         label.font = UIFont.boldSystemFont(ofSize: 20)
+        label.textColor = .textColor
         return label
     }()
     
     let logoutButton: UIButton = {
         let button = UIButton()
         button.setTitle(L10n.Logout.logout, for: .normal)
-        button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .basalt
+        button.setTitleColor(.textColor, for: .normal)
+        button.backgroundColor = .bubbleBackground
         button.layer.cornerRadius = 10
         return button
     }()
     let changeImageButton: UIButton = {
         let button = UIButton()
         button.setTitle(L10n.Settings.changeImage, for: .normal)
-        button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .basalt
+        button.setTitleColor(.textColor, for: .normal)
+        button.backgroundColor = .bubbleBackground
         button.layer.cornerRadius = 10
         return button
     }()
     let changeUserName: UIButton = {
         let button = UIButton()
         button.setTitle(L10n.Settings.changeUserName, for: .normal)
-        button.setTitleColor(.chalkWhite, for: .normal)
-        button.backgroundColor = .basalt
+        button.setTitleColor(.textColor, for: .normal)
+        button.backgroundColor = .bubbleBackground
         button.layer.cornerRadius = 10
         return button
     }()
@@ -61,7 +62,7 @@ class SettingsView: UIView {
     
    init () {
        super.init(frame: .zero)
-       backgroundColor = .chalkWhite
+       backgroundColor = .background
        addViews()
        setupConstrains()
        

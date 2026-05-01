@@ -19,6 +19,17 @@ class CharacterViewModel{
         self.character = nil
         setupFavoritesBinding()
     }
+    var numberOfSections:[CharacterSections] {
+        let sections = CharacterSections.allCases.filter{ section in
+            switch section{
+            case .seyu: return seyu.count > 0
+            case .anime: return animesListCount > 0
+            case .manga: return mangasListCount > 0
+            default: return true
+            }
+        }
+        return sections
+    }
     var animesListCount: Int{
        return fullCharacterDetails?.animes.count ?? 0
     }
@@ -53,7 +64,7 @@ class CharacterViewModel{
     }
     return rawDescription.htmlStripped()
 }
-    
+
     func loadData(){
         NetworkManager.shared.request(endpoint: .characterDetails(id: characterID), method: .get)
             .replaceError(with: nil)

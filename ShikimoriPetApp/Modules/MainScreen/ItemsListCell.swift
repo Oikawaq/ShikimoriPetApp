@@ -26,7 +26,7 @@ class ItemsListCell: UICollectionViewCell {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.numberOfLines = 1
-        label.textColor = .basalt
+        label.textColor = .textColor
         label.isSkeletonable = true
         return label
     }()

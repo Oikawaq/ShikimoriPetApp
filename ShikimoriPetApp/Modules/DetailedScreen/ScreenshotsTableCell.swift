@@ -12,7 +12,13 @@ class ScreenshotsTableCell: UITableViewCell {
     var onScreenshotTapped: (([URL?],Int) -> Void)?
     private var screenshots: [URL?] = []
     static let identifier: String = "ScreenshotsCell"
-
+    private let sectionLabel: UILabel = {
+        let label = UILabel()
+        label.text = L10n.categories.screenshots
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = .textColor
+        return label
+    }()
     private let screenshotsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -36,9 +42,16 @@ class ScreenshotsTableCell: UITableViewCell {
     }
     private func setupUI() {
         contentView.addSubview(screenshotsCollectionView)
-
+        contentView.addSubview(sectionLabel)
+        sectionLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
+        }
         screenshotsCollectionView.snp.makeConstraints { make in
-            make.edges.equalTo(contentView).inset(16)
+            make.top.equalTo(sectionLabel.snp.bottom).offset(12)
+//            make.edges.equalTo(contentView).inset(16)
+            make.leading.trailing.bottom.equalTo(contentView).inset(16)
             make.height.equalTo(215)
         }
     }

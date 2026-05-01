@@ -144,16 +144,16 @@ extension ProfileViewController: UICollectionViewDelegate, UICollectionViewDataS
             let item = viewModel.favoritesList[indexPath.item]
             switch item.type {
             case .anime:
-                let vc = DetailedViewControllerTest(viewModel: DetailedViewModel(itemId: item.id, contentType: .animes))
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .animes))
                 navigationController?.pushViewController(vc, animated: true)
             case .character:
-                let vc = CharacterProfileVC(viewModel: CharacterViewModel(characterId: item.id))
+                let vc = CharacterViewController(viewModel: CharacterViewModel(characterId: item.id))
                 navigationController?.pushViewController(vc, animated: true)
             case .manga:
-                let vc = DetailedViewControllerTest(viewModel: DetailedViewModel(itemId: item.id, contentType: .mangas))
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .mangas))
                 navigationController?.pushViewController(vc, animated: true)
             case .ranobe:
-                let vc = DetailedViewControllerTest(viewModel: DetailedViewModel(itemId: item.id, contentType: .ranobe))
+                let vc = DetailedViewController(viewModel: DetailedViewModel(itemId: item.id, contentType: .ranobe))
                 navigationController?.pushViewController(vc, animated: true)
             case .none:
                 print("no favorite data")

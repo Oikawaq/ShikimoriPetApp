@@ -115,8 +115,7 @@ extension MainViewController: UICollectionViewDelegate, SkeletonCollectionViewDa
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selectedItem = viewModel.content[indexPath.item]
         let detailVM = DetailedViewModel(contentList: selectedItem, contentType: viewModel.contentType)
-//        let detailVC = DetailedViewController(viewModel: detailVM)
-        let detailVC = DetailedViewControllerTest(viewModel: detailVM)
+        let detailVC = DetailedViewController(viewModel: detailVM)
         
         navigationController?.pushViewController(detailVC, animated: true)
     }

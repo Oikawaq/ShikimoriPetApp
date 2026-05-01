@@ -11,5 +11,6 @@ class TabBarConstants {
     static let mainPageVC = "Главная"
     static let profileVC = "Профиль"
     static let settingsVC = "Настройки"
+    static let searchVC = "Поиск"
     
 }

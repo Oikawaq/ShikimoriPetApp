@@ -25,7 +25,8 @@ class FooterView: UICollectionReusableView {
     let nextPageButton: UIButton = {
         let button = UIButton()
         button.setTitle("Next", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.titleLabel?.textColor = .textColor
+        button.backgroundColor = .bubbleBackground
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.layer.cornerRadius = 10
         return button
@@ -33,14 +34,15 @@ class FooterView: UICollectionReusableView {
     private let previousPageButton: UIButton = {
         let button = UIButton()
         button.setTitle("Prev", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.titleLabel?.textColor = .textColor
+        button.backgroundColor = .bubbleBackground
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.layer.cornerRadius = 10
         return button
     }()
     private let currentPageLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .basalt
+        label.textColor = .textColor
         label.textAlignment = .center
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.text = "-"

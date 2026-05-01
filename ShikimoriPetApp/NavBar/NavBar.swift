@@ -28,7 +28,11 @@ class TabBarController: UITabBarController {
         let settingsNav = UINavigationController(rootViewController: settings)
         setupNavItems(vc: settings, title: TabBarConstants.settingsVC, image: "gear")
         
-        viewControllers = [mainNav,profileNav, settingsNav]
+        let vmSearch = SearchViewModel(type: .animes)
+        let search  = SearchViewController(viewModel: vmSearch)
+        let searchNav = UINavigationController(rootViewController: search)
+        setupNavItems(vc: search, title: TabBarConstants.searchVC, image: "magnifyingglass")
+        viewControllers = [mainNav,profileNav, settingsNav, searchNav]
         
     }
     

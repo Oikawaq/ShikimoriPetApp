@@ -7,6 +7,8 @@
 
 
 struct CharacterModel: Decodable, UniversalCellProtocol{
+    var itemId: Int { id}
+    
     
     var cellTitle: String { russian ?? name }
     

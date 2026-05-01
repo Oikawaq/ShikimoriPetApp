@@ -11,7 +11,7 @@ import Kingfisher
 import Combine
 
 
-final class DetailedViewControllerTest: UIViewController {
+final class DetailedViewController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private let viewModel: DetailedViewModel
     private var detailView: DetailView? {
@@ -34,8 +34,14 @@ final class DetailedViewControllerTest: UIViewController {
     override func viewDidLoad() {
         setupTableView()
         setupBindings()
-        viewModel.loadAllData()
+        Task{
+            await viewModel.loadAllData()
+        }
+       
+        
+        
     }
+   
     private func setupBindings(){
 
         Publishers.CombineLatest4(
@@ -49,11 +55,17 @@ final class DetailedViewControllerTest: UIViewController {
             self?.detailView?.tableView.reloadData()
         }
         .store(in: &cancellables)
+        viewModel.$isFavorite
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.detailView?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     private func setupTableView(){
         detailView?.tableView.dataSource = self
         detailView?.tableView.delegate = self
-        detailView?.tableView.register(HeaderCell.self, forCellReuseIdentifier: HeaderCell.identifier)
+        detailView?.tableView.register(DetailedHeaderCell.self, forCellReuseIdentifier: DetailedHeaderCell.identifier)
         detailView?.tableView.register(StudioCell.self, forCellReuseIdentifier: StudioCell.identifier)
         detailView?.tableView.register(InformationCell.self, forCellReuseIdentifier: InformationCell.identifier)
         detailView?.tableView.register(DescriptionCell.self, forCellReuseIdentifier: DescriptionCell.identifier)
@@ -64,7 +76,7 @@ final class DetailedViewControllerTest: UIViewController {
     }
 }
 
-extension DetailedViewControllerTest: UITableViewDataSource, UITableViewDelegate{
+extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.NumberOfSections.count
     }
@@ -87,7 +99,7 @@ extension DetailedViewControllerTest: UITableViewDataSource, UITableViewDelegate
                 isFavorite: viewModel.isFavorite
             )
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: HeaderCell.identifier) as! HeaderCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: DetailedHeaderCell.identifier) as! DetailedHeaderCell
             
             cell.onUserRateTapped = {[weak self] in
                 guard let self = self else {return}
@@ -135,7 +147,7 @@ extension DetailedViewControllerTest: UITableViewDataSource, UITableViewDelegate
             cell.onCharacterTapped = {[weak self] id in
                 guard let self = self else {return}
                 let vm = CharacterViewModel(characterId: id)
-                let vc = CharacterProfileVC(viewModel: vm)
+                let vc = CharacterViewController(viewModel: vm)
                 navigationController?.pushViewController(vc, animated: true)
             }
             cell.configure(with: characters)

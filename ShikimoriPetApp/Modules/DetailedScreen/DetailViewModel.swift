@@ -63,17 +63,12 @@ class DetailedViewModel{
             switch section {
             case .posters: return type == .animes
             case .studio: return type == .animes
-            case .related:
-                      print("related filter: \(relatedRowData.count)") // <- добавь
-                      return !relatedRowData.isEmpty
-                  case .authors:
-                      print("authors filter: \(authorsRowData.count)") // <- добавь
-                      return !authorsRowData.isEmpty
+            case .related:return !relatedRowData.isEmpty
+            case .authors:return !authorsRowData.isEmpty
                 
             default: return true
             }
         }
-        print("sections: \(sections)")
         return sections
     }
     var watchingStatus: WatchingStatus {
@@ -258,13 +253,15 @@ class DetailedViewModel{
     }
 
     //MARK: Network Methods
-    func loadAllData(){
-        loadData()
-        loadUserRate()
-        loadCharacters()
-        loadRelated()
-        loadAuthors(type: type)
+    func loadAllData() async{
         
+        await loadData()
+        await loadUserRate()
+        try? await Task.sleep(nanoseconds: 250_000_000)
+        await loadCharacters()
+        await loadRelated()
+        await loadAuthors(type: type)
+        try? await Task.sleep(nanoseconds: 500_000_000)
         if type == .animes {
             loadScreenshots()
         }
@@ -338,14 +335,14 @@ class DetailedViewModel{
             ]
         ]
     }
-    func loadData(){
+    private func loadData() async{
         NetworkManager.shared.request(endpoint: .contentDetails(id: itemsId, contentType: type), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$anime)
     }
     
-    func loadCharacters(){
+    private func loadCharacters()async{
         NetworkManager.shared.request(endpoint: .itemMainCharacters(id: itemsId, contentType: type), method: .get)
             .map{(roles: [CharacterRoleModel]) in
                 roles.filter{$0.roles.contains("Main")
@@ -355,7 +352,7 @@ class DetailedViewModel{
             .receive(on: DispatchQueue.main)
             .assign(to: &$characters)
     }
-    func loadScreenshots() {
+    private func loadScreenshots() {
         NetworkManager.shared.request(endpoint: .screenshots(id: itemsId, сontentType: type), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
@@ -388,7 +385,7 @@ class DetailedViewModel{
         }
     }
 
-    func loadAuthors(type: ContentType) {
+    private func loadAuthors(type: ContentType) async{
         NetworkManager.shared.request(endpoint: .authors(id: itemsId, contentType: type), method: .get)
             .map { [weak self] (roles: [AuthorModel]) -> [ListSectionView.RowData] in
                 guard let self else { return [] }
@@ -403,14 +400,14 @@ class DetailedViewModel{
             .assign(to: &$authorsRowData)
     }
     
-    func loadRelated() {
+    private func loadRelated() async{
         NetworkManager.shared.request(endpoint: .related(id: itemsId, contentType: type), method: .get)
             .map { (related: [RelatedAnime]) -> [ListSectionView.RowData] in
                 return related.compactMap { item in
                     let content = item.anime ?? item.manga
                     guard let content = content else { return nil }
                     return ListSectionView.RowData(
-                        title: content.russian ?? content.name ?? "",
+                        title: content.russian ?? content.name,
                         subtitle: item.relationRussian,
                         imageUrl: content.image?.original,
                         id: content.id
@@ -422,7 +419,7 @@ class DetailedViewModel{
             .assign(to: &$relatedRowData)
     }
     
-    func loadUserRate() {
+    private func loadUserRate() async{
     
         NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: itemsId, contentType: type), method: .get)
             .replaceError(with: [])

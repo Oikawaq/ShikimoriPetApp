@@ -10,11 +10,10 @@ import UIKit
 import SnapKit
 import Kingfisher
 
-class HeaderCell: UITableViewCell {
+class CharacterheaderCell: UITableViewCell {
     static let identifier = "HeaderCell"
     var onFavoriteTapped: (() -> Void)?
-    var onUserRateTapped: (() -> Void)?
-    private let titleNameLabel: UILabel = {
+    private let characterName: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.textColor = .textColor
@@ -35,24 +34,7 @@ class HeaderCell: UITableViewCell {
         imageView.layer.cornerRadius = 8
         return imageView
     }()
-    
-    private let ratingBlock = RatingBlockView()
-    private let tagsStackView: UIStackView = {
-           let stack = UIStackView()
-           stack.axis = .horizontal
-           stack.spacing = 8
-           stack.alignment = .leading
-           stack.distribution = .fill
-           return stack
-       }()
-    private let userRateStatusButton: UIButton = {
-         let button = UIButton()
-         button.backgroundColor = .background
-         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-         button.titleLabel?.textColor = .textColor
-         button.layer.cornerRadius = 10
-         return button
-     }()
+
 
         //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -68,52 +50,32 @@ class HeaderCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc private func userRateTapped(){
-        onUserRateTapped?()
-    }
     @objc private func favoriteTapped(){
         onFavoriteTapped?()
     }
     private func setupActions(){
-        userRateStatusButton.addTarget(self, action: #selector(userRateTapped), for: .touchUpInside)
         favoritesButton.addTarget(self, action: #selector(favoriteTapped), for: .touchUpInside)
     }
     private func addsViews(){
-        [titleNameLabel,image,favoritesButton,ratingBlock,tagsStackView,userRateStatusButton].forEach{
+        [characterName,image,favoritesButton].forEach{
             contentView.addSubview($0)
         }
     }
     private func setupUI(){
-        titleNameLabel.snp.makeConstraints { make in
+        characterName.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(12)
         }
         image.snp.makeConstraints { make in
-            make.top.equalTo(titleNameLabel.snp.bottom).offset(16)
+            make.top.equalTo(characterName.snp.bottom).offset(16)
             make.height.equalTo(450)
             make.width.equalTo(300)
             make.leading.equalToSuperview().offset(16)
-            
+            make.bottom.equalToSuperview().inset(12)
         }
         favoritesButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(16)
             make.top.equalTo(image)
-        }
-        ratingBlock.snp.makeConstraints { make in
-            make.top.equalTo(image.snp.bottom).offset(16)
-            make.leading.equalToSuperview().offset(16)
-            
-        }
-        tagsStackView.snp.makeConstraints{make in
-            make.top.equalTo(ratingBlock.snp.bottom).offset(8)
-            make.leading.equalToSuperview().offset(16)
-            
-        }
-        userRateStatusButton.snp.makeConstraints{make  in
-            make.height.equalTo(50)
-            make.top.equalTo(tagsStackView.snp.bottom).offset(16)
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalToSuperview().inset(16)
         }
     }
 
@@ -133,33 +95,11 @@ class HeaderCell: UITableViewCell {
           }
           return label
       }
-    private func configureTags(with tags: [DetailedViewModel.TagData]) {
-         tagsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-         
-         tags.forEach { tag in
-             let color: UIColor
-             switch tag.type {
-             case .released: color = .systemGreen
-             case .ongoing:  color = .systemOrange
-             case .year: color = .systemBlue
-             }
-             
-             let tagLabel = createTagLabel(text: tag.text, color: color)
-             tagsStackView.addArrangedSubview(tagLabel)
-         }
-         
-         let spacer = UIView()
-         tagsStackView.addArrangedSubview(spacer)
-     }
         //MARK: configure
-    func configure(with data: HeaderModel) {
-        titleNameLabel.text = data.titleName
+    func configure(with data: CharacterHeaderModel) {
+        characterName.text = data.name
         image.kf.setImage(with: data.imageURL)
-        ratingBlock.ratingStarsView.setRating(data.rating)
-        ratingBlock.scoreNumberLabel.text = data.score
-        ratingBlock.scoreTextLabel.text = data.ratingText
-        configureTags(with: data.tags)
-        userRateStatusButton.setTitle(data.userRateButtontext, for: .normal)
+
         if data.isFavorite {
             favoritesButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
         }else{

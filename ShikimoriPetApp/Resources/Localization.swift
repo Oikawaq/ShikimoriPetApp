@@ -28,9 +28,9 @@ enum L10n {
     enum ContentItem{
         static let anime = "Аниме"
         static let manga = "Манга"
-        
-        
-        
+    }
+    enum Placeholder{
+        static let search = "Поиск"
     }
     enum categories{
         static let anime = "Аниме"

@@ -77,7 +77,7 @@ class RateEditorVC: UIViewController {
     }
         //MARK: setupUI
     private func setupUI(){
-        view.backgroundColor = .basalt
+        view.backgroundColor = .bubbleBackground
 
         [scoreLabel, episodesLabel, statusLabel, maxEpisodesLabel,scoreButton,statusButton,actionButtonsStackView,stepper,currentEpisodesField]
             .forEach({view.addSubview($0)})
@@ -190,7 +190,7 @@ class RateEditorVC: UIViewController {
  
     private func createLabel(title: String) -> UILabel {
         let label = UILabel()
-        label.textColor = .chalkWhite
+        label.textColor = .textColor
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 16, weight: .regular)
         label.text = title
