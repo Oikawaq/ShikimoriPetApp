@@ -28,6 +28,7 @@ final class NetworkManager {
                     promise(.failure(.badUrl))
                     return
                 }
+//                print(request.url?.absoluteString ?? "")
                 if let body = body {
                     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
                     request.httpBody = try? JSONSerialization.data(withJSONObject: body)

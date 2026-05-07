@@ -8,7 +8,7 @@
 import Foundation
 
 enum ShikimoriEndpoint {
-    case loadTypeData(page: Int, limit: Int,contentType: ContentType)
+    case loadTypeData(page: Int,contentType: ContentType, filters: Filters)
     case contentDetails(id: Int,contentType: ContentType)
     case itemMainCharacters(id: Int,contentType: ContentType)
     case characterDetails(id: Int)
@@ -27,16 +27,30 @@ enum ShikimoriEndpoint {
     case deleteFromFavorites(id: Int, type: FavoriteType)
     case userRatesList(id: Int,limit: Int = 5000)
     case search(limit:Int = 50, query: String, contentType: ContentType, order: String = "ranked")
+    case comments(id: Int)
     var url: URL? {
         var components = URLComponents(string: "https://shikimori.io/api")
         switch self {
-        case .loadTypeData(let page, let limit,let contentType):
-            components?.path += "/\(contentType)"
-            components?.queryItems = [
-                URLQueryItem(name: "page", value: "\(page)"),
-                URLQueryItem(name: "limit", value: "\(limit)"),
-                URLQueryItem(name: "order", value: "ranked")
+        case .loadTypeData(let page,let contentType, let filters):
+        
+            let filtersValue = [
+                "kind": filters.kind?.rawValue,
+                "order": filters.order?.rawValue,
+                "status": filters.status?.rawValue
             ]
+            let filteredArray:[URLQueryItem] = filtersValue.compactMap { key, value in
+                guard let value = value else {return nil}
+                return URLQueryItem(name: key, value: "\(value)")
+                
+            }
+            let queryItems:[URLQueryItem] = [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "limit", value: "20"),
+                
+            ] + filteredArray
+
+            components?.path += "/\(contentType)"
+            components?.queryItems = queryItems
         case .contentDetails(let id, let contentType):
             components?.path += "/\(contentType)/\(id)"
         case .itemMainCharacters(let id,let contentType):
@@ -90,6 +104,13 @@ enum ShikimoriEndpoint {
                 URLQueryItem(name: "search", value: query),
                 URLQueryItem(name: "limit", value: "\(limit)"),
                 URLQueryItem(name: "order", value: "\(order)"),
+            ]
+        case .comments(let id):
+            components?.path += "comments"
+            components?.queryItems = [
+                URLQueryItem(name: "commentable_id", value: "\(id)"),
+                URLQueryItem(name: "commentable_type", value: "User"),
+                
             ]
         }
         return components?.url

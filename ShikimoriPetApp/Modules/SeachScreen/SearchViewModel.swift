@@ -18,7 +18,7 @@ class SearchViewModel {
         NetworkManager.shared.request(endpoint: .search(query: text, contentType: .animes), method: .get)
             .map{ [weak self] (response: [test])-> [SectionViewSearch.RowData] in
                 return response.compactMap{ item in
-                    return SectionViewSearch.RowData(title: item.cellTitle, subtitle: item.name, imageUrl: item.cellImage, id: item.id, score: 4.5)
+                    return SectionViewSearch.RowData(title: item.cellTitle, subtitle: item.name, imageUrl: item.cellImage, id: item.id, score: item.score)
                     
                 }
                 

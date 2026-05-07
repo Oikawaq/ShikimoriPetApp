@@ -26,7 +26,12 @@ final class MainView: UIView {
         button.showsMenuAsPrimaryAction = true
         return button
     }()
-
+    let filterButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(systemName: "slider.horizontal.3"), for: .normal)
+        button.tintColor = .textColor
+        return button
+    }()
     let descriptionLabel: UILabel = {
         let label = UILabel()
         label.text = L10n.MainPage.description
@@ -66,18 +71,22 @@ final class MainView: UIView {
     //MARK: Setup
     
     private func addsViews(){
-        [typeSelectorButton, descriptionLabel,collectionView].forEach {
+        [typeSelectorButton, descriptionLabel,collectionView,filterButton].forEach {
             addSubview($0)
         }
     }
     private func setupUI(){
         
-        backgroundColor = UIColor.background
+        backgroundColor = .background
         
         typeSelectorButton.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(-40)
             make.left.equalToSuperview().offset(16)
             make.height.equalTo(50)
+        }
+        filterButton.snp.makeConstraints { make in
+            make.centerY.equalTo(typeSelectorButton)
+            make.trailing.equalToSuperview().inset(16)
         }
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(typeSelectorButton.snp.bottom).offset(8)

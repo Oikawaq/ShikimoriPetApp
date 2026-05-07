@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct AnimeUserRate: Codable{
+struct UserRate: Codable{
     let id : Int?
     let score: Int?
     let status: String?
     let rewatches: Int?
     let episodes: Int?
-    
+    let chapters: Int?
     
 }

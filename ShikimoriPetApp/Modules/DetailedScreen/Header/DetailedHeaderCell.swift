@@ -25,7 +25,7 @@ class DetailedHeaderCell: UITableViewCell {
            let button = UIButton()
            let image = UIImage(systemName: "star")
            button.setImage(image, for: .normal)
-           button.tintColor = .white
+           button.tintColor = .red
            return button
        }()
     private let image : UIImageView = {
@@ -85,8 +85,8 @@ class DetailedHeaderCell: UITableViewCell {
     }
     private func setupUI(){
         titleNameLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(12)
-            make.leading.trailing.equalToSuperview().inset(12)
+            make.top.equalToSuperview().offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
         image.snp.makeConstraints { make in
             make.top.equalTo(titleNameLabel.snp.bottom).offset(16)
@@ -162,6 +162,7 @@ class DetailedHeaderCell: UITableViewCell {
         userRateStatusButton.setTitle(data.userRateButtontext, for: .normal)
         if data.isFavorite {
             favoritesButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+          
         }else{
             favoritesButton.setImage(UIImage(systemName: "star"), for: .normal)
         }

@@ -45,7 +45,7 @@ final class DetailedViewController: UIViewController {
     private func setupBindings(){
 
         Publishers.CombineLatest4(
-            viewModel.$anime,
+            viewModel.$item,
             viewModel.$authorsRowData,
             viewModel.$characters,
             viewModel.$relatedRowData
@@ -55,7 +55,7 @@ final class DetailedViewController: UIViewController {
             self?.detailView?.tableView.reloadData()
         }
         .store(in: &cancellables)
-        viewModel.$isFavorite
+        Publishers.CombineLatest(viewModel.$isFavorite, viewModel.$userRate)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.detailView?.tableView.reloadData()
@@ -104,7 +104,7 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
             cell.onUserRateTapped = {[weak self] in
                 guard let self = self else {return}
                 let vm = viewModel.makeRateEditorVM()
-                let vc = RateEditorVC(viewModel: vm)
+                let vc = RateEditorVC(viewModel: vm, type: viewModel.type)
                 if let sheet = vc.sheetPresentationController {
                     sheet.detents = [.medium(), .large()]
                     sheet.prefersGrabberVisible = true
@@ -132,6 +132,13 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
         case .related:
             let cell = tableView.dequeueReusableCell(withIdentifier: RelatedCell.identifier) as! RelatedCell
             cell.configure(with: viewModel.relatedRowData)
+            cell.relatedSectionView.onItemTapped = { [weak self] id, type in
+                guard let self = self else {return}
+                    let vm = DetailedViewModel(itemId: id, contentType: type)
+                    let vc = DetailedViewController(viewModel: vm)
+                    self.navigationController?.pushViewController(vc, animated: true)
+               
+            }
             return cell
         case .authors:
             let cell = tableView.dequeueReusableCell(withIdentifier: AuthorsCell.identifier) as! AuthorsCell

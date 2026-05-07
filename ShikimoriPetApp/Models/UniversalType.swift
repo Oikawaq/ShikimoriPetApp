@@ -8,6 +8,7 @@
 
 import Foundation
 struct UniversalType: Decodable, UniversalCellProtocol{
+    
     var itemId: Int { id } 
     
     var cellTitle: String { russian ?? name }
@@ -22,13 +23,15 @@ struct UniversalType: Decodable, UniversalCellProtocol{
     var type: FavoriteType?
 }
 struct test: Decodable, UniversalCellProtocol{
+
+    
     var itemId: Int { id }
     
     var cellTitle: String { russian ?? name }
     
     var cellImage: String? { image?.original}
     
-
+    let score: String
     let id: Int
     let name: String
     let russian: String?

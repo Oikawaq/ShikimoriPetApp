@@ -2,12 +2,14 @@
 import Foundation
 import Combine
 final class RateEditorViewModel {
-    var watchingStatus: WatchingStatus
+    var watchingStatus: WatchingStatus = .none
     let maxEpisodes: Int
     var currentScore: Int
     @Published var currentEpisodes: Int
     @Published var currentStatus: WatchingStatus
-    var onSave: ((WatchingStatus, Int, Int) -> Void)?
+    
+    var onSaveAnime: ((WatchingStatus, Int, Int) -> Void)?
+    var onSaveManga: ((ReadingStatus, Int, Int) -> Void)?
     
     init(
         watchingStatus: WatchingStatus,
@@ -16,17 +18,16 @@ final class RateEditorViewModel {
         currentEpisodes: Int,
         onSave: ((WatchingStatus, Int, Int) -> Void)?
     ) {
-        
         self.watchingStatus = watchingStatus
         self.maxEpisodes = maxEpisodes
         self.currentScore = currentScore
         self.currentEpisodes = currentEpisodes
-        self.onSave = onSave
+        self.onSaveAnime = onSave
         self.currentStatus = watchingStatus
     }
     
     func save() {
-        onSave?(currentStatus, currentScore, currentEpisodes)
-        print(currentStatus)
+        onSaveAnime?(currentStatus, currentScore, currentEpisodes)
     }
+
 }

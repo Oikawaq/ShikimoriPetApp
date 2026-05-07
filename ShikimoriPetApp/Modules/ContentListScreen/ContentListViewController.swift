@@ -64,7 +64,7 @@ extension ContentListViewController: UITableViewDataSource, UITableViewDelegate{
             return UITableViewCell()
         }
         if indexPath.row == 0{
-            let item = viewModel.sections[indexPath.section].status.ruDescription
+            let item = viewModel.sections[indexPath.section].status.animeRuDesc
             cell.configureHeader(with: item)
             return cell
         }else{

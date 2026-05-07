@@ -10,7 +10,7 @@ import SnapKit
 import Combine
 
 class RateEditorVC: UIViewController {
-    
+    private var type: ContentType
     private let viewModel: RateEditorViewModel
     private var cancellables = Set<AnyCancellable>()
         //MARK: UIComponents
@@ -31,7 +31,7 @@ class RateEditorVC: UIViewController {
     }()
     lazy var maxEpisodesLabel = createLabel(title: " / \(viewModel.maxEpisodes) ")
     lazy var scoreButton: UIButton = createMenuButton(title: viewModel.currentScore == 0 ? "Без оценки" : "\(viewModel.currentScore)")
-    lazy var statusButton: UIButton = createMenuButton(title: viewModel.watchingStatus.ruDescription)
+    lazy var statusButton: UIButton = createMenuButton(title: viewModel.watchingStatus.animeRuDesc)
     lazy var cancelButton: UIButton = createMenuButton(title: "Отмена", congfigButton: true)
     lazy var saveButton: UIButton = createMenuButton(title: "Сохранить", congfigButton: true)
     lazy var stepper: UIStepper = {
@@ -53,8 +53,9 @@ class RateEditorVC: UIViewController {
         return stackView
     }()
         //MARK: lifecycle
-    init(viewModel: RateEditorViewModel){
+    init(viewModel: RateEditorViewModel,type: ContentType){
         self.viewModel = viewModel
+        self.type = type
         super.init(nibName: nil, bundle: nil)
     }
     required init?(coder: NSCoder) {
@@ -68,13 +69,14 @@ class RateEditorVC: UIViewController {
         updateStatus()
         setupBindings()
         setupTargets()
-
     }
     private func setupTargets(){
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
-        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
         stepper.addTarget(self, action: #selector(stepperTapped), for: .valueChanged)
-    }
+        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+
+        }
+        
         //MARK: setupUI
     private func setupUI(){
         view.backgroundColor = .bubbleBackground
@@ -138,7 +140,8 @@ class RateEditorVC: UIViewController {
         viewModel.$currentStatus
               .sink { [weak self] status in
                   guard let self else { return }
-                  self.statusButton.setTitle(status.ruDescription, for: .normal)
+                  let statusType = type == .animes ? status.animeRuDesc : status.mangaRuDesc
+                  self.statusButton.setTitle(statusType, for: .normal)
               }
               .store(in: &cancellables)
         viewModel.$currentEpisodes
@@ -167,6 +170,7 @@ class RateEditorVC: UIViewController {
         viewModel.save()
         dismiss(animated: true)
     }
+
     @objc private func cancelTapped() { dismiss(animated: true) }
     @objc private func stepperTapped(){
         viewModel.currentEpisodes = Int(stepper.value)
@@ -177,9 +181,10 @@ class RateEditorVC: UIViewController {
     
     private func updateStatus(){
         let statuses: [WatchingStatus] = [.watching, .completed, .onHold, .planned, .dropped, .none]
-
+        
         let actions = statuses.map { status in
-            return UIAction(title: status.ruDescription, state: status == viewModel.watchingStatus ? .on : .off) {[weak self] _ in
+            let statusType = type == .animes ? status.animeRuDesc : status.mangaRuDesc
+            return UIAction(title: statusType, state: status == viewModel.watchingStatus ? .on : .off) {[weak self] _ in
                 guard let self = self else { return }
                 self.viewModel.currentStatus = status
                 self.updateStatus()

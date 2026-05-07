@@ -3,6 +3,7 @@ import UIKit
 import Combine
 import SkeletonView
 class MainViewController: UIViewController {
+    weak var delegate: MainViewControllerDelegate?
     var cancellables = Set<AnyCancellable>()
     let viewModel = MainViewModel()
     private var mainView: MainView? {
@@ -16,13 +17,23 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
-        mainView?.showSkeleton()
-        viewModel.switchContent(to: viewModel.contentType)
+        if viewModel.content.isEmpty{
+            viewModel.switchContent(to: .animes, filter: viewModel.filters)
+        }
+        setupActions()
+        updateType()
+        setupBindings()
     }
     override func viewDidAppear(_ animated: Bool) {
-        setupBindings()
-        updateType()
+       
+       
         
+    }
+    private func setupActions(){
+        mainView?.filterButton.addTarget(self, action: #selector(menuButtonTapped), for: .touchUpInside)
+    }
+    @objc private func menuButtonTapped(){
+        delegate?.didTapMenuButton()
     }
     private func setupBindings(){
         viewModel.$content
@@ -43,6 +54,14 @@ class MainViewController: UIViewController {
                 self.mainView?.collectionView.reloadData()
             }
             .store(in: &cancellables)
+        viewModel.$filters
+            .receive(on: DispatchQueue.main)
+            .sink{ [weak self ] _ in
+                guard let self = self else {return}
+                self.viewModel.switchContent(to: viewModel.contentType, filter: viewModel.filters)
+                self.mainView?.collectionView.reloadData()
+            }
+            .store(in: &cancellables)
     }
     
     private func setupCollectionView(){
@@ -51,14 +70,17 @@ class MainViewController: UIViewController {
     }
     private func updateType(){
      
-        
+      
         let type:[ContentType] = [.animes , .mangas, .ranobe]
+        
         
         let actions = type.map{type in
             return UIAction(title: type.title, state: type == viewModel.contentType ? .on: .off){[weak self] _ in
             guard let self = self else {return}
-                self.viewModel.switchContent(to: type)
+                delegate?.switchType(type: type)
+                self.viewModel.switchContent(to: type, filter: viewModel.filters)
                 self.updateType()
+                
             }
         }
         mainView?.typeSelectorButton.menu = UIMenu(children: actions)

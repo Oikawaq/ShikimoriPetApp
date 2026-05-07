@@ -28,7 +28,7 @@ final class SectionViewSearch: UIView {
         let subtitle: String
         let imageUrl: String?
         let id: Int?
-        let score: Double
+        let score: String
         
     }
     
@@ -38,7 +38,8 @@ final class SectionViewSearch: UIView {
                 name: data.title,
                 role: data.subtitle,
                 imageUrl: data.imageUrl,
-                score: data.score
+                score: data.score,
+                isSearching: true
             )
            
             mainStack.addArrangedSubview(row)

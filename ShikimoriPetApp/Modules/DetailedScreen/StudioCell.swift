@@ -34,10 +34,9 @@ class StudioCell: UITableViewCell{
     
     private func setupUI(){
         addSubview(studioImage)
-
+        self.selectionStyle = .none
         
         studioImage.snp.makeConstraints { make in
-            make.height.equalTo(80)
             make.width.equalTo(220)
             make.centerX.equalToSuperview()
             make.top.bottom.equalToSuperview().inset(8)

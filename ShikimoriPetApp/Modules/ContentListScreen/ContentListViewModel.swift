@@ -37,7 +37,7 @@ class ContentListViewModel {
 //    }
     func loadUserList() {
         NetworkManager.shared.request(endpoint: .userRatesList(id: userId), method: .get)
-            .replaceError(with: []) // Если ошибка — пустой массив
+            .replaceError(with: []) 
             .map { (items: [UserContentListModel])->[UniversalSectionModel] in
     
                 WatchingStatus.allCases.compactMap { status in

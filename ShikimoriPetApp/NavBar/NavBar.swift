@@ -16,7 +16,7 @@ class TabBarController: UITabBarController {
     }
     
     private func setupVCs() {
-        let mainVC = MainViewController()
+        let mainVC = ContainerController()
         let mainNav = UINavigationController(rootViewController: mainVC)
         setupNavItems(vc: mainVC, title: TabBarConstants.mainPageVC, image: "house")
         let vm = ProfileViewModel(userId: userId)

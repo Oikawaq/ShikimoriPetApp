@@ -11,4 +11,5 @@ protocol UniversalCellProtocol {
     var cellTitle: String { get }
     var cellImage: String? { get }
     var itemId: Int { get }
+
 }

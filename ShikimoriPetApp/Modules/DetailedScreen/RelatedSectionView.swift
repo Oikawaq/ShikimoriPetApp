@@ -17,7 +17,7 @@ class RelatedCell: UITableViewCell {
         label.text = L10n.categories.related
         return label
     }()
-    private let relatedSectionView = ListSectionView()
+    let relatedSectionView = ListSectionView()
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -27,11 +27,12 @@ class RelatedCell: UITableViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
     private func setupUI(){
         self.selectionStyle = .none
         backgroundColor = .bubbleBackground
-        addSubview(titleLabel)
-        addSubview(relatedSectionView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(relatedSectionView)
         titleLabel.snp.makeConstraints { make in
             make.top.leading.equalToSuperview().inset(16)
             

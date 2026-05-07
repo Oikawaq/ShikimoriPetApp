@@ -38,7 +38,7 @@ class CharacterViewModel{
     }
     var seyu: [ListSectionView.RowData] {
         fullCharacterDetails?.seyu?.prefix(2).map{seyu in
-            return ListSectionView.RowData(title: seyu.russian ?? "", subtitle: seyu.name ?? "", imageUrl: seyu.image?.original, id: seyu.id
+            return ListSectionView.RowData(title: seyu.russian ?? "", subtitle: seyu.name ?? "", imageUrl: seyu.image?.original, id: seyu.id, type: .animes
         )
             
         } ?? []

@@ -35,7 +35,6 @@ class ScreenshotsTableCell: UITableViewCell {
         self.selectionStyle = .none
         backgroundColor = .bubbleBackground
         setupUI()
-        print("ScreenshotsCount: \(screenshots.count)")
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -50,7 +49,6 @@ class ScreenshotsTableCell: UITableViewCell {
         }
         screenshotsCollectionView.snp.makeConstraints { make in
             make.top.equalTo(sectionLabel.snp.bottom).offset(12)
-//            make.edges.equalTo(contentView).inset(16)
             make.leading.trailing.bottom.equalTo(contentView).inset(16)
             make.height.equalTo(215)
         }

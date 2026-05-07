@@ -33,6 +33,7 @@ final class SearchViewController: UIViewController{
         super.viewDidLoad()
         setupBindings()
         setupTableView()
+        searchView?.tableView.keyboardDismissMode = .onDrag
     }
     override func viewDidAppear(_ animated: Bool) {
         searchView?.searchBar.becomeFirstResponder()

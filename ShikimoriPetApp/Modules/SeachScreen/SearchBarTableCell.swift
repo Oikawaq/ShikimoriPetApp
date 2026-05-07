@@ -11,7 +11,7 @@ import SnapKit
 class SearchBarTableCell: UITableViewCell {
     static let identifier: String = "SearchBarTableCell"
 
-    private let authorsSectionView = SectionViewSearch()
+    private let searchSetion = SectionViewSearch()
     //MARK: init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -24,14 +24,14 @@ class SearchBarTableCell: UITableViewCell {
     private func setupUI(){
         self.selectionStyle = .none
         backgroundColor = .bubbleBackground
-        addSubview(authorsSectionView)
-        authorsSectionView.snp.makeConstraints{make in
+        addSubview(searchSetion)
+        searchSetion.snp.makeConstraints{make in
             make.top.equalToSuperview().offset(12)
             make.leading.trailing.equalToSuperview().inset(16)
             make.bottom.equalToSuperview().inset(12)
         }
     }
     func configure(with data: SectionViewSearch.RowData){
-        authorsSectionView.configure(with: data)
+        searchSetion.configure(with: data)
     }
 }

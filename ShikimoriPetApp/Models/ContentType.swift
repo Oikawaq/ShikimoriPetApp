@@ -16,7 +16,7 @@ enum ContentType: String{
         switch self{
         case .animes: return "Anime"
         case .mangas: return "Manga"
-        case .ranobe: return "Ranob"
+        case .ranobe: return "Ranobe"
         }
     }
     var title: String{

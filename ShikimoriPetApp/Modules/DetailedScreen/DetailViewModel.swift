@@ -9,12 +9,12 @@ class DetailedViewModel{
     var type: ContentType
     
     //MARK: Published Properties
-    @Published var anime: ContentItemModel?
+    @Published var item: ContentItemModel?
     @Published var characters: [CharacterRoleModel] = []
     @Published var screenshots: [Screenshots] = []
     @Published var authors: [AuthorModel] = []
     @Published var relatedAnimeList: [RelatedAnime] = []
-    @Published var userRate: [AnimeUserRate] = []
+    @Published var userRate: [UserRate] = []
     @Published var authorsRowData: [ListSectionView.RowData] = []
     @Published var relatedRowData: [ListSectionView.RowData] = []
     @Published var isLoading: Bool = false
@@ -26,12 +26,12 @@ class DetailedViewModel{
         UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
     }
     var score: String {
-        return contentList?.score ?? anime?.score ?? "Нет информации"
+        return contentList?.score ?? item?.score ?? "Нет информации"
     }
     var statusButtonText: String {
         guard !isLoading else { return "Загрузка..." }
         guard let rate = userRate.first else { return "Добавить в список" }
-        let status = WatchingStatus(rawValue: rate.status ?? "")?.ruDescription ?? "Добавить в список"
+        let status = type == .animes ? WatchingStatus(rawValue: rate.status ?? "")?.animeRuDesc ?? "Добавить в список" : WatchingStatus(rawValue: rate.status ?? "")?.mangaRuDesc ?? "Добавить в список"
         let score = rate.score ?? 0
         return score > 0 ? "\(status) — \(score)" : status
     }
@@ -90,7 +90,7 @@ class DetailedViewModel{
     }
     
     private var nextEpisode: String? {
-        return anime?.nextEpisodeAt
+        return item?.nextEpisodeAt
         
     }
     private var nextEpisodeDate: Date? {
@@ -108,11 +108,11 @@ class DetailedViewModel{
         return formatter.string(from: date)
     }
     var imageURL: URL? {
-        let fullPath = "https://shikimori.io" + (contentList?.image.original ?? anime?.image?.original ?? "")
+        let fullPath = "https://shikimori.io" + (contentList?.image.original ?? item?.image?.original ?? "")
         return URL(string: fullPath)
     }
     var studiosImage: URL? {
-        guard let url = anime?.studios?.first?.image else { return nil}
+        guard let url = item?.studios?.first?.image else { return nil}
         let fullpath = "https://shikimori.io" + url
         return URL(string: fullpath)
     }
@@ -130,7 +130,7 @@ class DetailedViewModel{
         }
         
         
-        if anime?.kind == "movie", let duration = anime?.duration {
+        if item?.kind == "movie", let duration = item?.duration {
             details.append(("Длительность: ", "\(duration) мин."))
         }
         
@@ -141,16 +141,16 @@ class DetailedViewModel{
         return details
     }
     var chapters: String{
-        guard let chapters = anime?.chapters else{ return "?"}
+        guard let chapters = item?.chapters else{ return "?"}
         return "\(chapters)"
     }
     var volumes: String{
-        guard let volumes = anime?.volumes else{ return "?"}
+        guard let volumes = item?.volumes else{ return "?"}
         return "\(volumes)"
     }
     var episodes: String {
-            let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
-            var total = anime?.episodes.map { "\($0)" } ?? "?"
+            let aired = item?.episodesAired.map { "\($0)" } ?? "?"
+            var total = item?.episodes.map { "\($0)" } ?? "?"
             if aired > total{
                 total = "?"
             }
@@ -161,23 +161,26 @@ class DetailedViewModel{
     }
     
     var kind: String {
-        switch anime?.kind {
-        case "tv": return "ТВ-сериал"
-        case "movie": return "Фильм"
-        case "ona" : return "ONA"
-        case "manga": return "Манга"
+        switch item?.kind {
+        case L10n.sideMenuKind.tv.rawValue: return L10n.sideMenuKind.tv.localized
+        case L10n.sideMenuKind.movie.rawValue : return L10n.sideMenuKind.movie.localized
+        case L10n.sideMenuKind.ona.rawValue : return L10n.sideMenuKind.ona.localized
+        case L10n.sideMenuKind.manga.rawValue: return L10n.sideMenuKind.manga.localized
         case "ranobe": return "Ранобэ"
-        case "novel": return "Новелла"
-        case "special","tv_special": return "Специальный выпуск"
+        case L10n.sideMenuKind.novel.rawValue: return L10n.sideMenuKind.novel.localized
+        case L10n.sideMenuKind.special.rawValue,L10n.sideMenuKind.tv_special.rawValue: return L10n.sideMenuKind.tv_special.localized
+        case L10n.sideMenuKind.manhwa.rawValue: return L10n.sideMenuKind.manhwa.localized
+        case L10n.sideMenuKind.manhua.rawValue: return L10n.sideMenuKind.manhua.localized
+        case L10n.sideMenuKind.one_shot.rawValue: return L10n.sideMenuKind.one_shot.localized
             
-        default: return anime?.kind ?? "Неизвестно"
+        default: return item?.kind ?? "Неизвестно"
         }
     }
     
-    var title: String { "\(contentList?.russian ?? anime?.russian ?? "Нет названия") / \(contentList?.name ?? anime?.name ?? "Нет названия")" }
+    var title: String { "\(contentList?.russian ?? item?.russian ?? "Нет названия") / \(contentList?.name ?? item?.name ?? "Нет названия")" }
     
     var numericScore: Double {
-        return Double(contentList?.score ?? anime?.score ?? "0") ?? 0.0
+        return Double(contentList?.score ?? item?.score ?? "0") ?? 0.0
     }
     
     var ratingText: String {
@@ -189,21 +192,21 @@ class DetailedViewModel{
     }
     
     var description: String {
-        let rawDescription = anime?.description
+        let rawDescription = item?.description
         return rawDescription?.htmlStripped() ?? ""
     }
     
     var status: String {
-        switch anime?.status {
+        switch item?.status {
         case "released": return "Вышло"
         case "ongoing": return "Онгоинг"
         case "paused" : return "Приостановлено"
-        default: return contentList?.status ?? anime?.status ?? "Неизвестно"
+        default: return contentList?.status ?? item?.status ?? "Неизвестно"
         }
     }
     
     var year: String {
-        return String(contentList?.airedOn?.prefix(4) ?? anime?.airedOn?.prefix(4) ?? "??")
+        return String(contentList?.airedOn?.prefix(4) ?? item?.airedOn?.prefix(4) ?? "??")
     }
     var screenshotsPreview: [URL] {
         return screenshots.compactMap {
@@ -216,39 +219,36 @@ class DetailedViewModel{
         }
     }
     var maxEpisodesBug: Int {
-        let aired = anime?.episodesAired.map { "\($0)" } ?? "?"
-        let total = anime?.episodes.map { "\($0)" } ?? "?"
-        if aired > total{
-            return anime?.episodesAired ?? 0
-        }
-        return anime?.episodes ?? 0
-    }
-    func makeRateEditorVM() -> RateEditorViewModel {
         switch type{
         case .animes:
-            RateEditorViewModel(
-                watchingStatus: watchingStatus,
-                maxEpisodes: maxEpisodesBug,
-                currentScore: userRate.first?.score ?? 0,
-                currentEpisodes: userRate.first?.episodes ?? 0,
-                onSave: { [weak self] status, episodes, score in
-                    self?.updateFullRate(status: status, score: score, episodes: episodes)
-                }
-                
-            )
+            let aired = item?.episodesAired.map { "\($0)" } ?? "?"
+            let total = item?.episodes.map { "\($0)" } ?? "?"
+            if aired > total{
+                return item?.episodesAired ?? 0
+            }
+            return item?.episodes ?? 0
         case .mangas,.ranobe:
-            RateEditorViewModel(
-                watchingStatus: watchingStatus,
-                maxEpisodes: maxEpisodesBug,
-                currentScore: userRate.first?.score ?? 0,
-                currentEpisodes: userRate.first?.episodes ?? 0,
-                onSave: { [weak self] status, episodes, score in
-                    self?.updateFullRate(status: status, score: score, episodes: episodes)
-                }
-                
-            )
+            return item?.chapters ?? 0
         }
         
+    }
+    var currentEpisode: Int?{
+        return type == .animes ? userRate.first?.episodes : userRate.first?.chapters
+        
+    }
+    var viewed: String{
+        return type == .animes ? "episodes" : "chapters"
+    }
+    func makeRateEditorVM() -> RateEditorViewModel {
+            RateEditorViewModel(
+                watchingStatus: watchingStatus,
+                maxEpisodes: maxEpisodesBug,
+                currentScore: userRate.first?.score ?? 0,
+                currentEpisodes: currentEpisode ?? 0,
+                onSave: { [weak self] status, score, episodes in
+                    self?.updateFullRate(status: status, score: score, episodes: episodes)
+                }
+        )
         
     }
 
@@ -259,9 +259,11 @@ class DetailedViewModel{
         await loadUserRate()
         try? await Task.sleep(nanoseconds: 250_000_000)
         await loadCharacters()
+        try? await Task.sleep(nanoseconds: 250_000_000)
         await loadRelated()
+        try? await Task.sleep(nanoseconds: 250_000_000)
         await loadAuthors(type: type)
-        try? await Task.sleep(nanoseconds: 500_000_000)
+        try? await Task.sleep(nanoseconds: 250_000_000)
         if type == .animes {
             loadScreenshots()
         }
@@ -281,7 +283,7 @@ class DetailedViewModel{
         let body = makeCreateBody(status: status, score: score, episodes: episodes)
         NetworkManager.shared.request(endpoint: .createUserRate, method: .post, body: body)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (newRate: AnimeUserRate) in
+            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (newRate: UserRate) in
                 self?.userRate = [newRate]
             })
             .store(in: &cancellables)
@@ -308,7 +310,7 @@ class DetailedViewModel{
         let body = makeUpdateBody(status: status, score: score, episodes: episodes)
         NetworkManager.shared.request(endpoint: .userRateUpdate(linkID: rateID), method: .put, body: body)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (updated: AnimeUserRate) in
+            .sink(receiveCompletion: { _ in }, receiveValue: { [weak self] (updated: UserRate) in
                 self?.userRate = [updated]
             })
             .store(in: &cancellables)
@@ -322,7 +324,7 @@ class DetailedViewModel{
                 "target_type": type.apiPath,
                 "status": status.rawValue,
                 "score": score,
-                "episodes": episodes
+                viewed: episodes
             ]
         ]
     }
@@ -331,7 +333,7 @@ class DetailedViewModel{
             "user_rate": [
                 "status": status.rawValue,
                 "score": score,
-                "episodes": episodes
+                viewed: episodes
             ]
         ]
     }
@@ -339,7 +341,7 @@ class DetailedViewModel{
         NetworkManager.shared.request(endpoint: .contentDetails(id: itemsId, contentType: type), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
-            .assign(to: &$anime)
+            .assign(to: &$item)
     }
     
     private func loadCharacters()async{
@@ -380,7 +382,8 @@ class DetailedViewModel{
                 title: title ?? "Unknown",
                 subtitle: $0.rolesRussian.joined(separator: ", "),
                 imageUrl: $0.person?.image?.original,
-                id: $0.person?.id
+                id: $0.person?.id,
+                type: .animes
             )
         }
     }
@@ -406,11 +409,13 @@ class DetailedViewModel{
                 return related.compactMap { item in
                     let content = item.anime ?? item.manga
                     guard let content = content else { return nil }
+                    let type: ContentType = if item.anime != nil { .animes } else { .mangas }
                     return ListSectionView.RowData(
                         title: content.russian ?? content.name,
                         subtitle: item.relationRussian,
                         imageUrl: content.image?.original,
-                        id: content.id
+                        id: content.id,
+                        type: type
                     )
                 }
             }
@@ -424,7 +429,7 @@ class DetailedViewModel{
         NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: itemsId, contentType: type), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (rates: [AnimeUserRate]) in
+            .sink { [weak self] (rates: [UserRate]) in
                 guard let self = self else { return }
                 self.userRate = rates
             }
