@@ -1,0 +1,42 @@
+{
+  "schemaNamespace" : "ShikimoriSchema",
+  "input" : {
+    "operationSearchPaths" : [
+      "**/*.graphql"
+    ],
+    "schemaSearchPaths" : [
+      "schema.graphqls"
+    ]
+  },
+  "output" : {
+    "testMocks" : {
+      "none" : {}
+    },
+    "schemaTypes" : {
+      "path" : "./ShikimoriPetApp/GraphQL",
+      "moduleType" : {
+        "embeddedInTarget" : {
+          "name" : "ShikimoriPetApp"
+        }
+      }
+    },
+    "operations" : {
+      "inSchemaModule" : {}
+    }
+  },
+  "schemaDownloadConfiguration" : {
+    "downloadMethod" : {
+      "introspection" : {
+        "endpointURL" : "https://shikimori.one/api/graphql",
+        "httpMethod" : { "POST" : {} },
+        "includeDeprecatedInputValues" : false,
+        "outputFormat" : "SDL"
+      }
+    },
+    "downloadTimeout" : 60,
+    "headers" : [
+      { "key" : "User-Agent", "value" : "ShikimoriPetApp" }
+    ],
+    "outputPath" : "./schema.graphqls"
+  }
+}

@@ -7,7 +7,10 @@
 
 import Foundation
 import Combine
+
+
 final class SideMenuViewModel{
+    
     @Published var type: ContentType
     @Published var selectedFilters = Filters(page: 1, order: .ranked, kind: nil, status: nil)
     private var statusSection: SideMenuCellModel {
@@ -84,6 +87,5 @@ final class SideMenuViewModel{
     init(type: ContentType){
         self.type = type
     }
-    
     
 }

@@ -1,9 +1,4 @@
-//
-//  AnimeListViewController.swift
-//  ShikimoriPetApp
-//
-//  Created by Иван Илькив on 4/6/26.
-//
+
 
 import UIKit
 import Combine
@@ -43,6 +38,15 @@ class ContentListViewController: UIViewController {
                 contentListView?.tableView.reloadData()
             }
             .store(in: &cancellables)
+        viewModel.$list
+            .receive(on: DispatchQueue.main)
+            .sink{ [weak self ] _ in
+                guard let self = self else {return}
+                self.contentListView?.tableView.reloadData()
+                
+            }
+            .store(in: &cancellables)
+            
             
     }
     private func setupTableView(){
@@ -56,7 +60,7 @@ extension ContentListViewController: UITableViewDataSource, UITableViewDelegate{
         return viewModel.sections.count
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.sections[section].anime.count + 1
+        return viewModel.sections[section].item.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -70,16 +74,35 @@ extension ContentListViewController: UITableViewDataSource, UITableViewDelegate{
         }else{
             
             
-            let item = viewModel.sections[indexPath.section].anime[indexPath.row - 1]
+            let item = viewModel.sections[indexPath.section].item[indexPath.row - 1]
             cell.configure(with: item, number: indexPath.row)
+            cell.isStacktapped = {[weak self ] id in
+                guard let self = self else {return}
+                if self.viewModel.userId != UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value){
+                    return
+                }
+                
+                self.viewModel.linkId = id
+               let vm = RateEditorViewModel(
+                watchingStatus: item.status,
+                maxEpisodes: item.anime?.episodesAired ?? 0,
+                currentScore: item.score ?? 0,
+                currentEpisodes: item.episodes ?? 0,
+                onSave: {[weak self ] status, score, episodes in
+                    guard let self = self else {return}
+                    self.viewModel.updateRate(status: status, score: score, episodes: episodes)
+                    
+                })
+                let vc = RateEditorVC(viewModel: vm, type: self.viewModel.type)
+                if let sheet = vc.sheetPresentationController{
+                    sheet.detents = [.medium(), .large()]
+                    sheet.prefersGrabberVisible = true
+                }
+                self.present(vc, animated: true)
+            }
             return cell
         }
     }
-//    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-//        let headerView = StackViewHeader(title: viewModel.sections[section].status.ruDescription)
-//        return headerView
-//    }
-    
 
     
 }

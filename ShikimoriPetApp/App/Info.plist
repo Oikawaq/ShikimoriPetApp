@@ -5,12 +5,12 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleURLName</key>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>ShikimoriPetApp</string>
 			</array>
-			<key>CFBundleURLName</key>
-			<string></string>
 		</dict>
 	</array>
 	<key>UIApplicationSceneManifest</key>

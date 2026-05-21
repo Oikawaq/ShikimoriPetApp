@@ -1,6 +1,6 @@
 import UIKit
 import SnapKit
-import SkeletonView
+
 final class DetailView: UIView {
     
     let tableView = UITableView(frame: .zero, style: .insetGrouped)

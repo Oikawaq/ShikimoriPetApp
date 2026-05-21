@@ -1,6 +1,5 @@
 import UIKit
 import SnapKit
-import SkeletonView
 
 final class CharacterView: UIView {
     

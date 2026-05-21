@@ -61,6 +61,20 @@ final class DetailedViewController: UIViewController {
                 self?.detailView?.tableView.reloadData()
             }
             .store(in: &cancellables)
+        viewModel.$topics
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: {[weak self] topics in
+                guard let self = self else {return}
+                detailView?.tableView.reloadData()
+            })
+            .store(in: &cancellables)
+        viewModel.$comments
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: {[weak self] topics in
+                guard let self = self else {return}
+                detailView?.tableView.reloadData()
+            })
+            .store(in: &cancellables)
     }
     private func setupTableView(){
         detailView?.tableView.dataSource = self
@@ -73,6 +87,8 @@ final class DetailedViewController: UIViewController {
         detailView?.tableView.register(RelatedCell.self, forCellReuseIdentifier: RelatedCell.identifier)
         detailView?.tableView.register(CharacterCell.self, forCellReuseIdentifier: CharacterCell.identifier)
         detailView?.tableView.register(ScreenshotsTableCell.self, forCellReuseIdentifier: ScreenshotsTableCell.identifier)
+        detailView?.tableView.register(UniversalCommentsCell.self, forCellReuseIdentifier: UniversalCommentsCell.identifier)
+        detailView?.tableView.register(CommentsHeader.self, forCellReuseIdentifier: CommentsHeader.identifier)
     }
 }
 
@@ -81,7 +97,11 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
         return viewModel.NumberOfSections.count
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        if viewModel.NumberOfSections[section] == .comments{
+            return viewModel.comments.count + 1
+        }else{
+            return 1
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -172,6 +192,37 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
             cell.configure(with: screenshot)
             return cell
         
+        case .comments:
+            if indexPath.row == 0{
+                let cell = tableView.dequeueReusableCell(withIdentifier: CommentsHeader.identifier, for: indexPath) as! CommentsHeader
+                cell.configure(canLoadMore: viewModel.canLoadMore)
+                cell.onShowAllButtonTapped = {[weak self ] in
+                    guard let self = self else {return}
+                    self.viewModel.moreComments()
+                }
+                return cell
+            }else{
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: UniversalCommentsCell.identifier, for: indexPath) as! UniversalCommentsCell
+                let data = viewModel.comments.reversed()[indexPath.row - 1]
+                cell.configure(with: data)
+                cell.isUserTapped = {[weak self] id in
+                    guard let self = self else {return}
+                    let vm = ProfileViewModel(userId: id)
+                    let vc = ProfileViewController(viewModel: vm)
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                }
+                cell.isImageTapped = {[weak self] array in
+                    guard let self = self else {return}
+                    let vc = FullScreenImagesVC(urls: array, startIndex: 0)
+                    vc.modalPresentationStyle = .overFullScreen
+                    vc.modalTransitionStyle = .crossDissolve
+                    present(vc, animated: true)
+                }
+                
+                return cell
+            }
         }
         
     }

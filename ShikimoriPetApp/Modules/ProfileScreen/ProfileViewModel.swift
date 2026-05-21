@@ -11,7 +11,38 @@ import UIKit
 
 class ProfileViewModel {
     var userId: Int
+    private var cancellabels : Set<AnyCancellable> = []
     @Published var profileData: ProfileUserModel?
+    @Published var comments: [CommentsModel] = []
+    @Published var commentsCOunt: Int = 0
+    @Published var canLoadMore: Bool = false
+    var newComments: [CommentsModel] = []
+    var allComments: [CommentsModel]{
+        let combined = comments + newComments
+       var seen = Set<Int>()
+        return combined.filter{
+            seen.insert($0.id).inserted
+        }
+    }
+    
+    var page: Int = 1
+    var numberOfSections: [ProfileSection] {
+        let sections = ProfileSection.allCases.filter { section in
+            switch section{
+            case .userInfo:
+                return true
+            case .content:
+                return true
+            case .friend:
+                return !userFriendsList.isEmpty
+            case .favorite:
+                return !favoritesList.isEmpty
+            case .comments:
+                return !comments.isEmpty
+            }
+        }
+        return sections
+    }
     var favoritesList: [UniversalType]{
         guard let favorites = userFavorites else{return []}
         return favorites.animes.map { var i = $0; i.type = .anime; return i }
@@ -84,19 +115,49 @@ class ProfileViewModel {
     }
    
         //MARK: network
-    func loadUserData(){
+    
+    func loadAllData(){
+        loadUserData()
+        loadUserFriends()
+        loadUserFavorites()
+        loadComments()
+       
+    }
+    func moreComments(){
+        page += 1
+        loadComments()
+    }
+
+    private func loadComments(){
+        CommentService.shared.loadComments(id: userId, page: page, type: .user)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: {_ in }, receiveValue: {[weak self ] (newComment: [CommentsModel]) in
+                guard let self = self else {return}
+                
+                let combined:[CommentsModel] = self.comments + newComment
+                var seen = Set<Int>()
+                let unique = combined.filter{
+                    seen.insert($0.id).inserted
+                }
+                self.comments = CommentService.shared.filter(unique: unique)
+                self.canLoadMore = unique.count < 10 ? false: true
+            })
+            .store(in: &cancellabels)
+    }
+    private func loadUserData(){
         NetworkManager.shared.request(endpoint: .userData(id: userId), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$profileData)
     }
-    func loadUserFriends(){
+    private func loadUserFriends(){
         NetworkManager.shared.request(endpoint: .loadUserFriends(id: userId, limit: 5), method: .get)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: &$userFriendsList)
     }
-    func loadUserFavorites(){
+    private func loadUserFavorites(){
         NetworkManager.shared.request(endpoint: .loadFavourites(id: userId), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)

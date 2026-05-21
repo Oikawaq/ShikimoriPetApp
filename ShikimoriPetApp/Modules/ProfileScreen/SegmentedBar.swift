@@ -28,7 +28,7 @@ final class SegmentedBar: UIView {
     let label: UILabel = {
        let label = UILabel()
         label.numberOfLines = 2
-        label.textColor = .basalt
+        label.textColor = .textColor
         label.font = .systemFont(ofSize: 12)
         label.isUserInteractionEnabled = true
         return label
@@ -43,19 +43,11 @@ final class SegmentedBar: UIView {
     
         //MARK: setupUI
     private func setupUI(){
-        
         addSubview(container)
         container.addArrangedSubview(stackView)
         container.addArrangedSubview(label)
         container.snp.makeConstraints{
             $0.edges.equalToSuperview()
-        }
-        stackView.snp.makeConstraints{
-            $0.top.leading.trailing.equalToSuperview()
-        }
-        label.snp.makeConstraints{
-            $0.top.equalTo(stackView.snp.bottom).offset(4)
-            $0.bottom.equalToSuperview()
         }
     }
     func configure(with segments: [Segment],description: String){

@@ -1,6 +1,15 @@
 {
-  "originHash" : "98474dc163ea8d58c321f1da50a17eb15410ecaa18a161f251796cf654fec686",
+  "originHash" : "b72822a1bb04360b12f91de9c65dea25c23a4c62b8dcb08e47f60afc376dcc89",
   "pins" : [
+    {
+      "identity" : "apollo-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apollographql/apollo-ios.git",
+      "state" : {
+        "revision" : "38c202227d0f09508e573dcf22f54885cfb0c5d4",
+        "version" : "2.1.2"
+      }
+    },
     {
       "identity" : "kingfisher",
       "kind" : "remoteSourceControl",
@@ -8,15 +17,6 @@
       "state" : {
         "revision" : "c92b84898e34ab46ff0dad86c02a0acbe2d87008",
         "version" : "8.8.0"
-      }
-    },
-    {
-      "identity" : "skeletonview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Juanpe/SkeletonView",
-      "state" : {
-        "revision" : "2f5274827d310e32c09325dd3e0007120940988e",
-        "version" : "1.31.0"
       }
     },
     {

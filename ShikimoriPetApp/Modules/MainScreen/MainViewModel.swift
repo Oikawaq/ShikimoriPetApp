@@ -7,8 +7,25 @@
 
 import Foundation
 import Combine
+import Apollo
+import ApolloAPI
 
 class MainViewModel {
+    typealias AnimeQuery = ShikimoriSchema.GetAnimeListQuery
+    typealias AnimeModel = ShikimoriSchema.GetAnimeListQuery.Data.Anime
+    private lazy var apolloClient: ApolloClient = {
+        let url = URL(string: "https://shikimori.io/api/graphql")!
+        
+        let config = URLSessionConfiguration.default
+        let urlSession = URLSession(configuration: config)
+        let store = ApolloStore()
+        let transport = RequestChainNetworkTransport(urlSession: urlSession, interceptorProvider: DefaultInterceptorProvider.shared, store: store, endpointURL: url)
+        
+        return ApolloClient(networkTransport: transport, store: ApolloStore())
+        
+    }()
+    var test: [AnimeModel] = []
+    
     @Published var content: [ContentListModel] = []
     @Published var contentType: ContentType = .animes
     @Published var filters : Filters = Filters(page: 1, order: .ranked, kind: nil, status: nil)
@@ -28,7 +45,6 @@ class MainViewModel {
     }
     func switchContent(to type: ContentType, filter: Filters){
         contentType = type
-//        content = []
         currentPage = 1
         loadContent(currentPage: currentPage, to: type,filters: filter)
         
@@ -46,5 +62,16 @@ class MainViewModel {
             .receive(on: DispatchQueue.main)
             .assign(to: &$content)
     }
-    
+    func fetchAnimeList(){
+        Task{
+            do{
+                let response = try await apolloClient.fetch(query: AnimeQuery(page: 1, limit: 15, order: .init(.ranked)))
+                let test = response.data?.animes.compactMap{ $0}
+                self.test = test ?? []
+            }catch{
+                print("Fetch error: \(error)")
+            }
+        }
+        
+    }
 }

@@ -9,11 +9,12 @@ import Foundation
 
 struct UserContentListModel: Decodable{
     let id: Int
-    let score: Int?
-    let status: WatchingStatus
-    let episodes: Int?
-    let chapters: Int?
+    var score: Int?
+    var status: WatchingStatus
+    var episodes: Int?
+    var chapters: Int?
     let volumes: Int?
     let rewatches: Int?
-    let anime: AnimeModel?
+    let anime: ContentItemModel?
+    let manga: ContentItemModel?
 }

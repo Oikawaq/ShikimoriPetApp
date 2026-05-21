@@ -19,7 +19,7 @@ class ContentListView: UIView {
         let label = UILabel()
         label.text = L10n.userRateList.anime
         label.numberOfLines = 1
-        label.textColor = .chalkWhite
+        label.textColor = .textColor
         return label
     }()
     let tableView: UITableView = {
@@ -45,17 +45,21 @@ class ContentListView: UIView {
     }
     
     private func addsViews(){
-    addSubview(stackView)
-        [label, tableView].forEach {
-            stackView.addArrangedSubview($0)
-        }
+    addSubview(label)
+    addSubview(tableView)
     }
     private func setupUI(){
-        backgroundColor = .black
-        stackView.snp.makeConstraints{ make in
+        backgroundColor = .background
+        tableView.backgroundColor = .background
+        tableView.separatorStyle = .none
+        label.snp.makeConstraints{ make in
 
             make.top.equalTo(safeAreaLayoutGuide).offset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+        tableView.snp.makeConstraints{make in
             make.leading.trailing.equalToSuperview()
+            make.top.equalTo(label.snp.bottom).offset(10)
             make.bottom.equalToSuperview()
         }
 

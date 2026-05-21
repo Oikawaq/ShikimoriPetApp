@@ -7,7 +7,7 @@
 
 import UIKit
 import SnapKit
-import SkeletonView
+
 
 final class MainView: UIView {
     
@@ -47,7 +47,7 @@ final class MainView: UIView {
         cv.backgroundColor = .background
         cv.register(ItemsListCell.self, forCellWithReuseIdentifier: ItemsListCell.identifier)
         cv.register(FooterView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionFooter, withReuseIdentifier: FooterView.identifier)
-        cv.isSkeletonable = true
+
         return cv
     }()
     
@@ -99,10 +99,6 @@ final class MainView: UIView {
         }
         
     }
-    func showSkeleton(color: UIColor = .skeletonColor){
-        
-        collectionView.showAnimatedSkeleton(usingColor: color)
-        collectionView.startSkeletonAnimation()
-    }
+
     
 }

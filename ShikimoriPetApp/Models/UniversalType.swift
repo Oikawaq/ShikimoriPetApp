@@ -7,7 +7,7 @@
 
 
 import Foundation
-struct UniversalType: Decodable, UniversalCellProtocol{
+struct UniversalType: Decodable, UniversalCellProtocol,Equatable{
     
     var itemId: Int { id } 
     

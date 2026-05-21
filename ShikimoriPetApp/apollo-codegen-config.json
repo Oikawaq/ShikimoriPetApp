@@ -1,0 +1,27 @@
+
+{
+  "schemaNamespace": "ShikimoriAPI",
+  "input": {
+    "operationSearchPaths": ["**/*.graphql"],
+    "schemaSearchPaths": ["**/*.json"]
+  },
+  "output": {
+    "schemaTypes": {
+      "path": "./ShikimoriPetApp/GraphQL/Schema",
+      "moduleType": { "swiftPackageManager": {} }
+    },
+    "operations": {
+      "inSource": {
+        "moduleName": "ShikimoriPetApp"
+      }
+    }
+  },
+  "options": {
+      "schemaCustomization":{
+          "customScalars":{
+              "PositiveInt": "Int"
+          }
+      }
+  }
+  
+}

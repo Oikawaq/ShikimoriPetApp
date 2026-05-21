@@ -16,4 +16,5 @@ enum DetailedSection: Int, CaseIterable{
     case authors
     case characters
     case posters
+    case comments
 }

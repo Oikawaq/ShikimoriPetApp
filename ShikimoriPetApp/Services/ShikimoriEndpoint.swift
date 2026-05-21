@@ -25,9 +25,10 @@ enum ShikimoriEndpoint {
     case loadUserFriends(id: Int,limit: Int)
     case addToFavorites(id: Int, type: FavoriteType)
     case deleteFromFavorites(id: Int, type: FavoriteType)
-    case userRatesList(id: Int,limit: Int = 5000)
+    case userRatesList(id: Int,limit: Int = 5000,type: ContentType)
     case search(limit:Int = 50, query: String, contentType: ContentType, order: String = "ranked")
-    case comments(id: Int)
+    case comments(id: Int, page: Int, commentableType: CommentableType)
+    case findTopicId(linkedId: Int)
     var url: URL? {
         var components = URLComponents(string: "https://shikimori.io/api")
         switch self {
@@ -93,8 +94,8 @@ enum ShikimoriEndpoint {
         case .deleteFromFavorites(let id,let type):
             components?.path += "/favorites/\(type.rawValue)/\(id)"
             
-        case .userRatesList(let id,let limit):
-            components?.path += "/users/\(id)/anime_rates"
+        case .userRatesList(let id,let limit,let type):
+            components?.path += "/users/\(id)/\(type.userListApiType)"
             components?.queryItems = [
                 URLQueryItem(name: "limit", value: "\(limit)")
             ]
@@ -105,11 +106,20 @@ enum ShikimoriEndpoint {
                 URLQueryItem(name: "limit", value: "\(limit)"),
                 URLQueryItem(name: "order", value: "\(order)"),
             ]
-        case .comments(let id):
-            components?.path += "comments"
+        case .comments(let id, let page, let commentableType):
+            components?.path += "/comments"
             components?.queryItems = [
                 URLQueryItem(name: "commentable_id", value: "\(id)"),
-                URLQueryItem(name: "commentable_type", value: "User"),
+                URLQueryItem(name: "commentable_type", value: "\(commentableType.apiPath)"),
+                URLQueryItem(name: "limit", value: "10"),
+                URLQueryItem(name: "page", value: "\(page)"),
+            ]
+        case .findTopicId(linkedId: let linkedId):
+            components?.path += "/topics"
+            components?.queryItems = [
+                URLQueryItem(name: "linked_id", value: "\(linkedId)"),
+                URLQueryItem(name: "page", value: "1"),
+                URLQueryItem(name: "limit", value: "30"),
                 
             ]
         }

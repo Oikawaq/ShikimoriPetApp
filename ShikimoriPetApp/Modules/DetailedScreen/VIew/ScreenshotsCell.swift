@@ -2,7 +2,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
-import SkeletonView
+
 
 final class ScreenshotsCell: UICollectionViewCell {
     static let identifier = "ScreenshotsCell"
@@ -13,8 +13,7 @@ final class ScreenshotsCell: UICollectionViewCell {
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 8
-        imageView.isSkeletonable = true
-        self.isSkeletonable = true
+
         contentView.addSubview(imageView)
         imageView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }

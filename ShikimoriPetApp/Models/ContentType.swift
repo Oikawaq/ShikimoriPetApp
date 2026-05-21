@@ -26,4 +26,13 @@ enum ContentType: String{
         case .ranobe: return "Ранобэ"
         }
     }
+    var userListApiType: String{
+        switch self{
+            
+        case .animes:
+            return "anime_rates"
+        case .mangas,.ranobe:
+            return "manga_rates"
+        }
+    }
 }

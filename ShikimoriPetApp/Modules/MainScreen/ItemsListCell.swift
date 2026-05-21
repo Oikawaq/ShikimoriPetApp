@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
-import SkeletonView
+
 class ItemsListCell: UICollectionViewCell {
     
     static let identifier: String = "AnimeListCell"
@@ -18,7 +18,7 @@ class ItemsListCell: UICollectionViewCell {
         iv.contentMode = .scaleAspectFill
         iv.clipsToBounds = true
         iv.layer.cornerRadius = 8
-        iv.isSkeletonable = true
+
         return iv
     }()
     
@@ -27,14 +27,14 @@ class ItemsListCell: UICollectionViewCell {
         label.font = .systemFont(ofSize: 12, weight: .semibold)
         label.numberOfLines = 1
         label.textColor = .textColor
-        label.isSkeletonable = true
+
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
-        self.isSkeletonable = true
+
     }
     
     required init?(coder: NSCoder) {

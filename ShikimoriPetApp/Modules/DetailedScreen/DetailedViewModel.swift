@@ -7,7 +7,9 @@ class DetailedViewModel{
     let contentList: ContentListModel?
     
     var type: ContentType
-    
+    var page: Int = 1
+    var topicId: Int = 1
+    var canLoadMore: Bool = false
     //MARK: Published Properties
     @Published var item: ContentItemModel?
     @Published var characters: [CharacterRoleModel] = []
@@ -19,7 +21,8 @@ class DetailedViewModel{
     @Published var relatedRowData: [ListSectionView.RowData] = []
     @Published var isLoading: Bool = false
     @Published var isFavorite: Bool = false
-    
+    @Published var comments: [CommentsModel] = []
+    @Published var topics: [TopicsModel] = []
     private var cancellables = Set<AnyCancellable>()
     
     var userID: Int {
@@ -254,7 +257,7 @@ class DetailedViewModel{
 
     //MARK: Network Methods
     func loadAllData() async{
-        
+        findTopicId()
         await loadData()
         await loadUserRate()
         try? await Task.sleep(nanoseconds: 250_000_000)
@@ -267,6 +270,9 @@ class DetailedViewModel{
         if type == .animes {
             loadScreenshots()
         }
+       
+    
+        loadComments()
     }
     func updateFullRate(status: WatchingStatus, score: Int, episodes: Int) {
         if status == .none {
@@ -458,6 +464,45 @@ class DetailedViewModel{
         }
         return favoriteType
     }
+    
+    private func loadComments(){
+        CommentService.shared.loadComments(id: topicId, page: page, type: .topic)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: {_ in }, receiveValue: {[weak self ] (newComment: [CommentsModel]) in
+                guard let self = self else {return}
+                
+                let combined:[CommentsModel] = self.comments + newComment
+                var seen = Set<Int>()
+                let unique = combined.filter{
+                    seen.insert($0.id).inserted
+                }
+                self.comments = CommentService.shared.filter(unique: unique)
+                self.canLoadMore = unique.count < 10 ? false: true
+            })
+            .store(in: &cancellables)
+    }
+    private func findTopicId(){
+        CommentService.shared.findTopicId(id: itemsId)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: {_ in}, receiveValue: {[weak self] (topics: [TopicsModel]) in
+                guard let self = self else {return}
+                topics.compactMap{topic in
+                    if topic.body.contains("Топик обсуждения"){
+                        self.topicId = topic.id
+                        print("topic found id: \(topic.id)")
+                    }
+                }
+                
+            })
+            .store(in: &cancellables)
+    }
+    func moreComments(){
+        page += 1
+        loadComments()
+    }
+    
     func toggleFavorite() {
 
         FavouritesManager.shared.toggleFavorite(id: itemsId, type: setFavoriteType())

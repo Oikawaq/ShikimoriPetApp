@@ -1,7 +1,7 @@
 
 import UIKit
 import Combine
-import SkeletonView
+
 class MainViewController: UIViewController {
     weak var delegate: MainViewControllerDelegate?
     var cancellables = Set<AnyCancellable>()
@@ -23,6 +23,7 @@ class MainViewController: UIViewController {
         setupActions()
         updateType()
         setupBindings()
+        viewModel.fetchAnimeList()
     }
     override func viewDidAppear(_ animated: Bool) {
        
@@ -41,7 +42,7 @@ class MainViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink{ [weak self ] _ in
                 guard let self = self else {return}
-                self.mainView?.hideSkeleton()
+
                 self.mainView?.collectionView.reloadData()
                 self.mainView?.collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
             }
@@ -87,13 +88,7 @@ class MainViewController: UIViewController {
     }
 }
  
-extension MainViewController: UICollectionViewDelegate, SkeletonCollectionViewDataSource {
-    func collectionSkeletonView(_ skeletonView: UICollectionView, cellIdentifierForItemAt indexPath: IndexPath) -> SkeletonView.ReusableCellIdentifier {
-        return ItemsListCell.identifier
-    }
-    func collectionSkeletonView(_ skeletonView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
-    }
+extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return viewModel.content.count

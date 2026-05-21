@@ -9,5 +9,5 @@ import Foundation
 
 struct UniversalSectionModel: Decodable{
     let status: WatchingStatus
-    let anime: [UserContentListModel]
+    let item: [UserContentListModel]
 }

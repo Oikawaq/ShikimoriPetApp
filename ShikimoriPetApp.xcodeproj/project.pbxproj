@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		426E08A92F7D0985000FD7C8 /* SkeletonView in Frameworks */ = {isa = PBXBuildFile; productRef = 426E08A82F7D0985000FD7C8 /* SkeletonView */; };
+		4249E8BB2FBEFC4200A59F22 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 4249E8BA2FBEFC4200A59F22 /* Apollo */; };
+		4249E8BD2FBEFC4200A59F22 /* ApolloAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 4249E8BC2FBEFC4200A59F22 /* ApolloAPI */; };
 		42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8A72F5EA92A0059B01B /* Kingfisher */; };
 		42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8AA2F5EA9360059B01B /* SnapKit */; };
 /* End PBXBuildFile section */
@@ -72,8 +73,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */,
-				426E08A92F7D0985000FD7C8 /* SkeletonView in Frameworks */,
+				4249E8BB2FBEFC4200A59F22 /* Apollo in Frameworks */,
 				42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */,
+				4249E8BD2FBEFC4200A59F22 /* ApolloAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -136,7 +138,8 @@
 			packageProductDependencies = (
 				42DAF8A72F5EA92A0059B01B /* Kingfisher */,
 				42DAF8AA2F5EA9360059B01B /* SnapKit */,
-				426E08A82F7D0985000FD7C8 /* SkeletonView */,
+				4249E8BA2FBEFC4200A59F22 /* Apollo */,
+				4249E8BC2FBEFC4200A59F22 /* ApolloAPI */,
 			);
 			productName = ShikimoriPetApp;
 			productReference = 4284A6352F0A8F1E007DBB31 /* ShikimoriPetApp.app */;
@@ -223,7 +226,7 @@
 			packageReferences = (
 				42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				42DAF8A92F5EA9360059B01B /* XCRemoteSwiftPackageReference "SnapKit" */,
-				426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */,
+				4249E8B92FBEFC4200A59F22 /* XCRemoteSwiftPackageReference "apollo-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4284A6362F0A8F1E007DBB31 /* Products */;
@@ -311,8 +314,9 @@
 				INFOPLIST_FILE = ShikimoriPetApp/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -321,12 +325,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "-.ShikimoriPetApp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -342,8 +350,9 @@
 				INFOPLIST_FILE = ShikimoriPetApp/App/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -352,12 +361,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "-.ShikimoriPetApp";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -604,12 +617,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */ = {
+		4249E8B92FBEFC4200A59F22 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Juanpe/SkeletonView";
+			repositoryURL = "https://github.com/apollographql/apollo-ios.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.31.0;
+				minimumVersion = 2.1.2;
 			};
 		};
 		42DAF8A62F5EA92A0059B01B /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
@@ -631,10 +644,15 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		426E08A82F7D0985000FD7C8 /* SkeletonView */ = {
+		4249E8BA2FBEFC4200A59F22 /* Apollo */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 426E08A72F7D0985000FD7C8 /* XCRemoteSwiftPackageReference "SkeletonView" */;
-			productName = SkeletonView;
+			package = 4249E8B92FBEFC4200A59F22 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = Apollo;
+		};
+		4249E8BC2FBEFC4200A59F22 /* ApolloAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4249E8B92FBEFC4200A59F22 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = ApolloAPI;
 		};
 		42DAF8A72F5EA92A0059B01B /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
