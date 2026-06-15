@@ -23,6 +23,7 @@ class InformationCell: UITableViewCell {
             let stack = UIStackView()
             stack.axis = .vertical
             stack.spacing = 10
+            stack.alignment = .firstBaseline
             return stack
     }()
     
@@ -48,6 +49,7 @@ class InformationCell: UITableViewCell {
             make.top.equalTo(headerLabel.snp.bottom).offset(8)
             make.bottom.equalToSuperview().inset(12)
             make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(16)
         }
     }
     func configureInfoBlock(with details: [(key: String, value: String)]) {
@@ -65,7 +67,6 @@ class InformationCell: UITableViewCell {
             keyLabel.text = title
             keyLabel.textColor = .textColor
             keyLabel.font = .systemFont(ofSize: 14)
-
             let valueLabel = UILabel()
             valueLabel.text = value
 
@@ -77,13 +78,14 @@ class InformationCell: UITableViewCell {
             view.addSubview(valueLabel)
             
             keyLabel.snp.makeConstraints { make in
-                make.leading.top.bottom.equalToSuperview()
+                make.leading.top.equalToSuperview()
                 make.width.equalTo(150)
             }
             
             valueLabel.snp.makeConstraints { make in
                 make.leading.equalTo(keyLabel.snp.trailing).offset(8)
-                make.trailing.top.bottom.equalToSuperview()
+                make.trailing.equalToSuperview().inset(8)
+                make.bottom.top.equalToSuperview()
             }
             
             return view

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct UniversalSectionModel: Decodable{
+struct UniversalSectionModel{
     let status: WatchingStatus
     let item: [UserContentListModel]
 }

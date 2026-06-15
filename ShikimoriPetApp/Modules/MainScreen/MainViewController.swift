@@ -17,13 +17,14 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView()
-        if viewModel.content.isEmpty{
-            viewModel.switchContent(to: .animes, filter: viewModel.filters)
-        }
+        viewModel.fetchAnimeList(currentPage: 1, filters: viewModel.filters)
+//        if viewModel.content.isEmpty{
+//            viewModel.switchContent(to: .animes, filter: viewModel.filters)
+//        }
         setupActions()
         updateType()
         setupBindings()
-        viewModel.fetchAnimeList()
+        
     }
     override func viewDidAppear(_ animated: Bool) {
        
@@ -37,7 +38,17 @@ class MainViewController: UIViewController {
         delegate?.didTapMenuButton()
     }
     private func setupBindings(){
-        viewModel.$content
+        viewModel.$animeContent
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink{ [weak self ] _ in
+                guard let self = self else {return}
+
+                self.mainView?.collectionView.reloadData()
+                self.mainView?.collectionView.setContentOffset(CGPoint(x: 0, y: 0), animated: true)
+            }
+            .store(in: &cancellables)
+        viewModel.$mangaContent
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink{ [weak self ] _ in
@@ -49,8 +60,9 @@ class MainViewController: UIViewController {
             .store(in: &cancellables)
         viewModel.$contentType
             .receive(on: DispatchQueue.main)
-            .sink{ [weak self ] _ in
+            .sink{ [weak self ] type in
                 guard let self = self else {return}
+                
                 self.mainView?.typeSelectorButton.setTitle(self.viewModel.contentType.title, for: .normal)
                 self.mainView?.collectionView.reloadData()
             }
@@ -59,7 +71,14 @@ class MainViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink{ [weak self ] _ in
                 guard let self = self else {return}
-                self.viewModel.switchContent(to: viewModel.contentType, filter: viewModel.filters)
+                switch self.viewModel.contentType{
+                    
+                case .animes:
+                    self.viewModel.fetchAnimeList(currentPage: viewModel.currentPage, filters: viewModel.filters)
+                case .mangas,.ranobe:
+                    self.viewModel.fetchMangaList(currentPage: viewModel.currentPage, filters: viewModel.filters)
+                }
+                
                 self.mainView?.collectionView.reloadData()
             }
             .store(in: &cancellables)

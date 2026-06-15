@@ -9,27 +9,35 @@ extension ShikimoriSchema {
     static let operationName: String = "GetAnimeList"
     static let operationDocument: ApolloAPI.OperationDocument = .init(
       definition: .init(
-        #"query GetAnimeList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum) { animes(page: $page, limit: $limit, order: $order) { __typename id name russian score poster { __typename originalUrl } } }"#
+        #"query GetAnimeList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum, $status: AnimeStatusString, $kind: AnimeKindString) { animes(page: $page, limit: $limit, order: $order, status: $status, kind: $kind) { __typename id name russian score poster { __typename originalUrl } } }"#
       ))
 
     public var page: GraphQLNullable<PositiveInt>
     public var limit: GraphQLNullable<PositiveInt>
     public var order: GraphQLNullable<GraphQLEnum<OrderEnum>>
+    public var status: GraphQLNullable<AnimeStatusString>
+    public var kind: GraphQLNullable<AnimeKindString>
 
     public init(
       page: GraphQLNullable<PositiveInt>,
       limit: GraphQLNullable<PositiveInt>,
-      order: GraphQLNullable<GraphQLEnum<OrderEnum>>
+      order: GraphQLNullable<GraphQLEnum<OrderEnum>>,
+      status: GraphQLNullable<AnimeStatusString>,
+      kind: GraphQLNullable<AnimeKindString>
     ) {
       self.page = page
       self.limit = limit
       self.order = order
+      self.status = status
+      self.kind = kind
     }
 
     @_spi(Unsafe) public var __variables: Variables? { [
       "page": page,
       "limit": limit,
-      "order": order
+      "order": order,
+      "status": status,
+      "kind": kind
     ] }
 
     nonisolated struct Data: ShikimoriSchema.SelectionSet {
@@ -41,7 +49,9 @@ extension ShikimoriSchema {
         .field("animes", [Anime].self, arguments: [
           "page": .variable("page"),
           "limit": .variable("limit"),
-          "order": .variable("order")
+          "order": .variable("order"),
+          "status": .variable("status"),
+          "kind": .variable("kind")
         ]),
       ] }
       static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [

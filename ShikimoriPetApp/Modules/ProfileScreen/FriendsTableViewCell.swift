@@ -73,6 +73,6 @@ extension FriendsTableViewCell: UICollectionViewDataSource, UICollectionViewDele
         return CGSize(width: 100, height: 100)
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        isFriendTapped?(friends[indexPath.row].itemId)
+        isFriendTapped?(friends[indexPath.row].itemId ?? 0)
     }
 }

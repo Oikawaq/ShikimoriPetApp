@@ -1,6 +1,7 @@
 import Combine
 import Foundation
-
+import Apollo
+import ApolloAPI
 @MainActor
 class DetailedViewModel{
     private let itemsId: Int
@@ -8,28 +9,31 @@ class DetailedViewModel{
     
     var type: ContentType
     var page: Int = 1
-    var topicId: Int = 1
     var canLoadMore: Bool = false
+    typealias animeInfo  = ShikimoriSchema.GetAnimeInfoQuery
+    typealias mangaInfo  = ShikimoriSchema.GetMangaInfoQuery
+    typealias animeModel = ShikimoriSchema.GetAnimeInfoQuery.Data.Anime
+    typealias mangaModel = ShikimoriSchema.GetMangaInfoQuery.Data.Manga
+    var itemInformation: ContentItemModel?
+//    var item: ContentItemModel?
+    var topicId: Int {
+        itemInformation?.topic ?? 0
+    }
     //MARK: Published Properties
     @Published var item: ContentItemModel?
-    @Published var characters: [CharacterRoleModel] = []
-    @Published var screenshots: [Screenshots] = []
-    @Published var authors: [AuthorModel] = []
-    @Published var relatedAnimeList: [RelatedAnime] = []
     @Published var userRate: [UserRate] = []
-    @Published var authorsRowData: [ListSectionView.RowData] = []
-    @Published var relatedRowData: [ListSectionView.RowData] = []
     @Published var isLoading: Bool = false
     @Published var isFavorite: Bool = false
     @Published var comments: [CommentsModel] = []
     @Published var topics: [TopicsModel] = []
+    @Published var itemInfo: [animeModel] = []
     private var cancellables = Set<AnyCancellable>()
     
     var userID: Int {
         UserDefaults.standard.integer(forKey: UserDefaultsEnum.userId.value)
     }
     var score: String {
-        return contentList?.score ?? item?.score ?? "Нет информации"
+        return String(describing: itemInformation?.score ?? 0)
     }
     var statusButtonText: String {
         guard !isLoading else { return "Загрузка..." }
@@ -38,7 +42,50 @@ class DetailedViewModel{
         let score = rate.score ?? 0
         return score > 0 ? "\(status) — \(score)" : status
     }
-    
+    var characters: [PersonProtocol]{
+        itemInformation?.characters?.filter{ character in
+            character.rolesEn?.contains("Main") ?? false
+            
+        } ?? []
+    }
+    var authorsRowData: [ListSectionView.RowData] {
+        guard let roles = itemInformation?.personRoles else { return [] }
+        
+        let filtered = roles.filter { !Set($0.rolesEn ?? []).isDisjoint(with: targetRoles(for: type)) }
+        
+        let sorted = filtered.sorted { $0.rolesEn?.contains("Original Creator") ?? false && !($1.rolesEn?.contains("Original Creator") ?? false) }
+        
+        return sorted.prefix(4).map { person in
+            ListSectionView.RowData(
+                title: person.person.russian ?? "",
+                subtitle: person.rolesRu?.joined(separator: ", "),
+                imageUrl: person.person.poster,
+                id: Int(person.person.id ?? "0"),
+                type: .animes
+            )
+        }
+    }
+    var genres: String{
+        guard let info = itemInformation else { return "" }
+        let genres = info.genres?.compactMap{genre in
+            if genre.kind == .genre || genre.kind == .demographic{
+                return genre.russian
+            }
+            return nil
+        }
+        return genres?.joined(separator: ", ") ?? ""
+    }
+    var relatedRowDataTest: [ListSectionView.RowData]{
+        itemInformation?.related?
+            .map{ related in
+                ListSectionView.RowData(
+                    title: related.anime?.russian ?? related.manga?.russian ?? "",
+                    subtitle: related.relationText ?? "",
+                    imageUrl: related.anime?.poster ?? related.manga?.poster,
+                    id: Int(related.anime?.id ?? "") ?? Int(related.manga?.id ?? ""),
+                    type: type)
+            } ?? []
+    }
     //MARK: Computed properties
     
     struct TagData {
@@ -66,7 +113,7 @@ class DetailedViewModel{
             switch section {
             case .posters: return type == .animes
             case .studio: return type == .animes
-            case .related:return !relatedRowData.isEmpty
+            case .related:return !relatedRowDataTest.isEmpty
             case .authors:return !authorsRowData.isEmpty
                 
             default: return true
@@ -81,7 +128,7 @@ class DetailedViewModel{
     //MARK: init
     init(contentList: ContentListModel, contentType: ContentType) {
         self.contentList = contentList
-        self.itemsId = contentList.id
+        self.itemsId = Int(contentList.id)!
         self.type = contentType
         setupFavoritesBinding()
     }
@@ -93,31 +140,19 @@ class DetailedViewModel{
     }
     
     private var nextEpisode: String? {
-        return item?.nextEpisodeAt
-        
+        return itemInformation?.nextEpisodeAt
     }
-    private var nextEpisodeDate: Date? {
-        guard let date = nextEpisode else { return nil}
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
 
-        return formatter.date(from: date)
-    }
     private var nextEpisodeText: String? {
-        guard let date = nextEpisodeDate else { return nil}
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru-RU")
-        formatter.dateFormat = "d MMMM HH:mm"
-        return formatter.string(from: date)
+        return DateKit.formatAbsoluteEpisodeTime(from: nextEpisode ?? "Нет информации")
     }
     var imageURL: URL? {
-        let fullPath = "https://shikimori.io" + (contentList?.image.original ?? item?.image?.original ?? "")
+        let fullPath = contentList?.image ?? itemInformation?.image ?? ""
         return URL(string: fullPath)
     }
     var studiosImage: URL? {
-        guard let url = item?.studios?.first?.image else { return nil}
-        let fullpath = "https://shikimori.io" + url
-        return URL(string: fullpath)
+        guard let url = itemInformation?.studios else { return nil}
+        return URL(string: url)
     }
     var infoDetails: [(key: String, value: String)] {
         var details: [(key: String, value: String)] = []
@@ -133,7 +168,7 @@ class DetailedViewModel{
         }
         
         
-        if item?.kind == "movie", let duration = item?.duration {
+        if itemInformation?.kind?.value?.rawValue == "movie", let duration = itemInformation?.duration {
             details.append(("Длительность: ", "\(duration) мин."))
         }
         
@@ -141,49 +176,76 @@ class DetailedViewModel{
         if nextEpisode != nil {
             details.append(("Следующий эпизод: ", nextEpisodeText ?? "Нет информации"))
         }
+        if genres != ""{
+            details.append(("Жанры", genres))
+        }
+        
         return details
     }
     var chapters: String{
-        guard let chapters = item?.chapters else{ return "?"}
+        guard let chapters = itemInformation?.chapters else{ return "?"}
         return "\(chapters)"
     }
     var volumes: String{
-        guard let volumes = item?.volumes else{ return "?"}
+        guard let volumes = itemInformation?.volumes else{ return "?"}
         return "\(volumes)"
     }
     var episodes: String {
-            let aired = item?.episodesAired.map { "\($0)" } ?? "?"
-            var total = item?.episodes.map { "\($0)" } ?? "?"
+            let aired = itemInformation?.episodesAired ?? 0
+            let total = itemInformation?.episodes ?? 0
+            var totalText = "\(total)"
             if aired > total{
-                total = "?"
+                totalText = "?"
             }
             switch status {
-            case "Онгоинг": return "\(aired) / \(total)"
-            default: return total
+            case "Онгоинг": return "\(aired) / \(totalText)"
+            default: return totalText
             }
     }
     
     var kind: String {
-        switch item?.kind {
-        case L10n.sideMenuKind.tv.rawValue: return L10n.sideMenuKind.tv.localized
-        case L10n.sideMenuKind.movie.rawValue : return L10n.sideMenuKind.movie.localized
-        case L10n.sideMenuKind.ona.rawValue : return L10n.sideMenuKind.ona.localized
-        case L10n.sideMenuKind.manga.rawValue: return L10n.sideMenuKind.manga.localized
-        case "ranobe": return "Ранобэ"
-        case L10n.sideMenuKind.novel.rawValue: return L10n.sideMenuKind.novel.localized
-        case L10n.sideMenuKind.special.rawValue,L10n.sideMenuKind.tv_special.rawValue: return L10n.sideMenuKind.tv_special.localized
-        case L10n.sideMenuKind.manhwa.rawValue: return L10n.sideMenuKind.manhwa.localized
-        case L10n.sideMenuKind.manhua.rawValue: return L10n.sideMenuKind.manhua.localized
-        case L10n.sideMenuKind.one_shot.rawValue: return L10n.sideMenuKind.one_shot.localized
-            
-        default: return item?.kind ?? "Неизвестно"
+        switch itemInformation?.kind?.value {
+        case .some(.cm):
+            return L10n.sideMenuKind.cm.localized
+        case .some(.tv):
+            return L10n.sideMenuKind.tv.localized
+        case .some(.movie):
+            return L10n.sideMenuKind.movie.localized
+        case .some(.ova):
+            return L10n.sideMenuKind.ova.localized
+        case .some(.ona):
+            return L10n.sideMenuKind.ona.localized
+        case .some(.special):
+            return L10n.sideMenuKind.tv_special.localized
+        case .some(.tvSpecial):
+            return L10n.sideMenuKind.tv_special.localized
+        case .some(.music):
+            return L10n.sideMenuKind.music.localized
+        case .some(.pv):
+            return L10n.sideMenuKind.pv.localized
+        case .none:
+            return ""
+        case .some(.manga):
+            return L10n.sideMenuKind.manga.localized
+        case .some(.lightNovel):
+            return L10n.sideMenuKind.light_novel.localized
+        case .some(.novel):
+            return L10n.sideMenuKind.novel.localized
+        case .some(.oneShot):
+            return L10n.sideMenuKind.one_shot.localized
+        case .some(.doujin):
+            return L10n.sideMenuKind.doujin.localized
+        case .some(.manhwa):
+            return L10n.sideMenuKind.manhwa.localized
+        case .some(.manhua):
+            return L10n.sideMenuKind.manhua.localized
         }
     }
     
-    var title: String { "\(contentList?.russian ?? item?.russian ?? "Нет названия") / \(contentList?.name ?? item?.name ?? "Нет названия")" }
+    var title: String { "\(contentList?.russian ?? itemInformation?.russian ?? "Нет названия") / \(contentList?.name ?? itemInformation?.name ?? "Нет названия")" }
     
     var numericScore: Double {
-        return Double(contentList?.score ?? item?.score ?? "0") ?? 0.0
+        return Double(contentList?.score ?? 0)
     }
     
     var ratingText: String {
@@ -194,32 +256,40 @@ class DetailedViewModel{
         return "Нормально"
     }
     
-    var description: String {
-        let rawDescription = item?.description
-        return rawDescription?.htmlStripped() ?? ""
+    var description: NSAttributedString {
+        (itemInformation?.description ?? "").parseDescriptionBBCode()
     }
     
     var status: String {
-        switch item?.status {
-        case "released": return "Вышло"
-        case "ongoing": return "Онгоинг"
-        case "paused" : return "Приостановлено"
-        default: return contentList?.status ?? item?.status ?? "Неизвестно"
+        switch itemInformation?.status?.value {
+        case .some(.anons):
+            return "Анонсировано"
+        case .some(.ongoing):
+            return "Онгоинг"
+        case .some(.released):
+            return "Вышло"
+        case  .some(.paused):
+            return "Приостановлено"
+        case .some(.discontinued):
+            return "Прекращено"
+        case .none:
+            return "Неизвестно"
         }
     }
     
     var year: String {
-        return String(contentList?.airedOn?.prefix(4) ?? item?.airedOn?.prefix(4) ?? "??")
+        return String(describing: itemInformation?.airedOn ?? 0)
     }
     var screenshotsPreview: [URL] {
-        return screenshots.compactMap {
-            URL(string: "https://shikimori.io" + ($0.preview ?? ""))
-        }
+        return itemInformation?.screenshots?.compactMap{
+            URL(string: $0.preview)
+        } ?? []
+      
     }
     var screenshotOriginal: [URL]{
-        return screenshots.compactMap {
-            URL(string: "https://shikimori.io" + ($0.original ?? ""))
-        }
+        return itemInformation?.screenshots?.compactMap{
+            URL(string: $0.original)
+        } ?? []
     }
     var maxEpisodesBug: Int {
         switch type{
@@ -257,23 +327,54 @@ class DetailedViewModel{
 
     //MARK: Network Methods
     func loadAllData() async{
-        findTopicId()
-        await loadData()
-        await loadUserRate()
-        try? await Task.sleep(nanoseconds: 250_000_000)
-        await loadCharacters()
-        try? await Task.sleep(nanoseconds: 250_000_000)
-        await loadRelated()
-        try? await Task.sleep(nanoseconds: 250_000_000)
-        await loadAuthors(type: type)
-        try? await Task.sleep(nanoseconds: 250_000_000)
-        if type == .animes {
-            loadScreenshots()
-        }
        
-    
+        switch type{
+            
+        case .animes:
+            await fetchAnimeInfo()
+        case .mangas:
+            await fetchMangaInfo()
+        case .ranobe:
+            print("www")
+        }
+        await loadUserRate()
+//        await loadData()
+      
         loadComments()
+
     }
+    func fetchAnimeInfo() async{
+        let id = String(itemsId)
+            do{
+                let response = try await ApolloService.shared.client.fetch(query: animeInfo(ids: .some(id)))
+                await MainActor.run{
+                    if let animeResponse = response.data?.animes.first {
+                        itemInformation = .init(anime: animeResponse)
+                    }
+                }
+            } catch{
+                print("Fetched error : \(error)")
+            }
+    }
+    func fetchMangaInfo() async{
+        let id = String(itemsId)
+            do{
+                let response = try await ApolloService.shared.client.fetch(query: mangaInfo(ids: .some(id)))
+                await MainActor.run{
+                    if let mangaResponse = response.data?.mangas.first {
+                        itemInformation = .init(manga: mangaResponse)
+                    }
+                }
+               
+            } catch{
+                print("Fetched error : \(error)")
+            }
+        
+        
+    }
+
+    
+    
     func updateFullRate(status: WatchingStatus, score: Int, episodes: Int) {
         if status == .none {
             deleteRate()
@@ -343,29 +444,13 @@ class DetailedViewModel{
             ]
         ]
     }
-    private func loadData() async{
-        NetworkManager.shared.request(endpoint: .contentDetails(id: itemsId, contentType: type), method: .get)
-            .replaceError(with: nil)
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$item)
-    }
-    
-    private func loadCharacters()async{
-        NetworkManager.shared.request(endpoint: .itemMainCharacters(id: itemsId, contentType: type), method: .get)
-            .map{(roles: [CharacterRoleModel]) in
-                roles.filter{$0.roles.contains("Main")
-                }
-            }
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$characters)
-    }
-    private func loadScreenshots() {
-        NetworkManager.shared.request(endpoint: .screenshots(id: itemsId, сontentType: type), method: .get)
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$screenshots)
-    }
+//    private func loadData() async{
+//        NetworkManager.shared.request(endpoint: .contentDetails(id: itemsId, contentType: type), method: .get)
+//            .replaceError(with: nil)
+//            .receive(on: DispatchQueue.main)
+//            .assign(to: &$item)
+//    }
+
 
     private func targetRoles(for type: ContentType) -> Set<String> {
         switch type {
@@ -378,58 +463,6 @@ class DetailedViewModel{
         }
     }
 
-    private func mapToRowData(_ roles: [AuthorModel]) -> [ListSectionView.RowData] {
-        roles.prefix(4).map {
-            var title = $0.person?.russian
-            if title == ""{
-                title = $0.person?.name
-            }
-            return ListSectionView.RowData(
-                title: title ?? "Unknown",
-                subtitle: $0.rolesRussian.joined(separator: ", "),
-                imageUrl: $0.person?.image?.original,
-                id: $0.person?.id,
-                type: .animes
-            )
-        }
-    }
-
-    private func loadAuthors(type: ContentType) async{
-        NetworkManager.shared.request(endpoint: .authors(id: itemsId, contentType: type), method: .get)
-            .map { [weak self] (roles: [AuthorModel]) -> [ListSectionView.RowData] in
-                guard let self else { return [] }
-                let target = self.targetRoles(for: type)
-                let filtered = roles
-                    .filter { !target.isDisjoint(with: Set($0.roles)) }
-                    .sorted { $0.roles.contains("Original Creator") && !$1.roles.contains("Original Creator") }
-                return self.mapToRowData(Array(filtered))
-            }
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$authorsRowData)
-    }
-    
-    private func loadRelated() async{
-        NetworkManager.shared.request(endpoint: .related(id: itemsId, contentType: type), method: .get)
-            .map { (related: [RelatedAnime]) -> [ListSectionView.RowData] in
-                return related.compactMap { item in
-                    let content = item.anime ?? item.manga
-                    guard let content = content else { return nil }
-                    let type: ContentType = if item.anime != nil { .animes } else { .mangas }
-                    return ListSectionView.RowData(
-                        title: content.russian ?? content.name,
-                        subtitle: item.relationRussian,
-                        imageUrl: content.image?.original,
-                        id: content.id,
-                        type: type
-                    )
-                }
-            }
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$relatedRowData)
-    }
-    
     private func loadUserRate() async{
     
         NetworkManager.shared.request(endpoint: .checkUserRates(userID: userID, targetID: itemsId, contentType: type), method: .get)
@@ -482,29 +515,12 @@ class DetailedViewModel{
             })
             .store(in: &cancellables)
     }
-    private func findTopicId(){
-        CommentService.shared.findTopicId(id: itemsId)
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: {_ in}, receiveValue: {[weak self] (topics: [TopicsModel]) in
-                guard let self = self else {return}
-                topics.compactMap{topic in
-                    if topic.body.contains("Топик обсуждения"){
-                        self.topicId = topic.id
-                        print("topic found id: \(topic.id)")
-                    }
-                }
-                
-            })
-            .store(in: &cancellables)
-    }
     func moreComments(){
         page += 1
         loadComments()
     }
     
     func toggleFavorite() {
-
         FavouritesManager.shared.toggleFavorite(id: itemsId, type: setFavoriteType())
         isFavorite.toggle()
     }

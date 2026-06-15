@@ -29,8 +29,22 @@ extension ShikimoriSchema {
 
     private static let objectTypeMap: [String: ApolloAPI.Object] = [
       "Anime": ShikimoriSchema.Objects.Anime,
+      "Character": ShikimoriSchema.Objects.Character,
+      "CharacterRole": ShikimoriSchema.Objects.CharacterRole,
+      "Genre": ShikimoriSchema.Objects.Genre,
+      "IncompleteDate": ShikimoriSchema.Objects.IncompleteDate,
+      "Manga": ShikimoriSchema.Objects.Manga,
+      "Person": ShikimoriSchema.Objects.Person,
+      "PersonRole": ShikimoriSchema.Objects.PersonRole,
       "Poster": ShikimoriSchema.Objects.Poster,
-      "Query": ShikimoriSchema.Objects.Query
+      "Query": ShikimoriSchema.Objects.Query,
+      "Related": ShikimoriSchema.Objects.Related,
+      "ScoreStat": ShikimoriSchema.Objects.ScoreStat,
+      "Screenshot": ShikimoriSchema.Objects.Screenshot,
+      "StatusStat": ShikimoriSchema.Objects.StatusStat,
+      "Studio": ShikimoriSchema.Objects.Studio,
+      "Topic": ShikimoriSchema.Objects.Topic,
+      "Video": ShikimoriSchema.Objects.Video
     ]
 
     static func objectType(forTypename typename: String) -> ApolloAPI.Object? {

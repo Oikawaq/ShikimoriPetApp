@@ -47,16 +47,8 @@ class ContentListViewModel {
             .sink { [weak self ] (items: [UserContentListModel]) in
                 guard let self = self else {return}
                 self.list = items
+                print(items.count)
                 self.rebuildSection()
-//                WatchingStatus.allCases.compactMap { status in
-//                    let filtered = items.filter { $0.status.rawValue == status.rawValue }
-//                    guard !filtered.isEmpty else { return nil }
-//                    let sorted = filtered.sorted(by: {
-//                        $0.score ?? 0 > $1.score ?? 0
-//                    })
-//                    return UniversalSectionModel(status: status, item: sorted )
-//                }
-
             }
             .store(in: &cancellables)
         

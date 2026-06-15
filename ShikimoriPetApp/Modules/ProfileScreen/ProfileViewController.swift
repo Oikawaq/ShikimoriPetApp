@@ -138,7 +138,8 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource{
                 case .ranobe:
                     navigateTo(id: id, contentType: .ranobe)
                 case .character:
-                    let vm = CharacterViewModel(characterId: id)
+                    let charId = String(id)
+                    let vm = CharacterViewModel(characterId: charId)
                     let vc = CharacterViewController(viewModel: vm)
                     self.navigationController?.pushViewController(vc, animated: true)
                 case .none:

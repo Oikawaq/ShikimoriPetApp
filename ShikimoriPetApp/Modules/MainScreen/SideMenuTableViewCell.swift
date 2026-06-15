@@ -59,7 +59,7 @@ class SideMenuTableViewCell: UITableViewCell {
             label.text = data.status?.localized
         }
         if data.order != nil{
-            label.text = data.order?.localized
+            label.text = data.order?.rawValue
         }
         if data.kind != nil{
             label.text = data.kind?.localized

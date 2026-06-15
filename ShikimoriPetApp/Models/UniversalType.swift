@@ -9,7 +9,7 @@
 import Foundation
 struct UniversalType: Decodable, UniversalCellProtocol,Equatable{
     
-    var itemId: Int { id } 
+    var itemId: Int? { id } 
     
     var cellTitle: String { russian ?? name }
     
@@ -25,7 +25,7 @@ struct UniversalType: Decodable, UniversalCellProtocol,Equatable{
 struct test: Decodable, UniversalCellProtocol{
 
     
-    var itemId: Int { id }
+    var itemId: Int? { id }
     
     var cellTitle: String { russian ?? name }
     

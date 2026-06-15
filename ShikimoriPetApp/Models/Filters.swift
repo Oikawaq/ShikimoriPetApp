@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct Filters: Codable {
-    let page: Int?
-    var order: Order? 
+struct Filters {
+    var order: ShikimoriSchema.OrderEnum?
     var kind: Kind?
     var status: Status?
 }

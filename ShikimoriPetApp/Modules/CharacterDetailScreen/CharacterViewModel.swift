@@ -1,22 +1,21 @@
 
 import Foundation
 import Combine
+import Apollo
 
+@MainActor
 class CharacterViewModel{
+    let characterID: String
     
-    var character: CharacterModel?
-    let characterID: Int
+    typealias characterModelGraphQL = ShikimoriSchema.GetCharacterInfoQuery.Data.Character
+    typealias getCharacter = ShikimoriSchema.GetCharacterInfoQuery
+    @Published var character: characterModelGraphQL? = nil
     @Published var isFavorite: Bool = false
     @Published var fullCharacterDetails: CharacterDetailModel?
     var cancellables: Set<AnyCancellable> = []
-    init (character: CharacterModel) {
-        self.characterID = character.id
-        self.character = character
-        setupFavoritesBinding()
-    }
-    init(characterId: Int) {
+
+    init(characterId: String) {
         self.characterID = characterId
-        self.character = nil
         setupFavoritesBinding()
     }
     var numberOfSections:[CharacterSections] {
@@ -54,22 +53,33 @@ class CharacterViewModel{
     
     var name: String { "\(character?.russian ?? fullCharacterDetails?.russian ?? "") / \(character?.name ?? fullCharacterDetails?.name ?? "")"}
     var imageURL: URL? {
-        let path = fullCharacterDetails?.image?.original ?? character?.image?.original ?? ""
-        let fullPath = "https://shikimori.io" + path
-        return URL(string: fullPath)
+        let url = character?.poster?.originalUrl ?? ""
+        return URL(string: url)
     }
-    var description: String {
-        guard let rawDescription = fullCharacterDetails?.description else {
-        return "Загрузка описания..."
-    }
-    return rawDescription.htmlStripped()
+    var description: NSAttributedString {
+        return(character?.description ?? "").parseDescriptionBBCode()
 }
 
-    func loadData(){
-        NetworkManager.shared.request(endpoint: .characterDetails(id: characterID), method: .get)
+    func loadFullData(){
+        NetworkManager.shared.request(endpoint: .characterDetails(id: Int(characterID) ?? 0), method: .get)
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .assign(to: &$fullCharacterDetails)
+    }
+    func loadAllData(){
+        loadFullData()
+        Task{
+            await loadData()
+        }
+    }
+    private func loadData() async{
+        do{
+            let response = try await ApolloService.shared.client.fetch(query: getCharacter(ids: .some(self.characterID)))
+            character = response.data?.characters.first
+        }catch{
+            print(error)
+        }
+        
     }
     private func setupFavoritesBinding() {
         FavouritesManager.shared.$isLoaded
@@ -77,12 +87,14 @@ class CharacterViewModel{
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 guard let self else { return }
-                self.isFavorite = FavouritesManager.shared.contains(self.characterID, type: .character)
+                guard let charId = Int(self.characterID) else{ return }
+                self.isFavorite = FavouritesManager.shared.contains(charId, type: .character)
             }
             .store(in: &cancellables)
     }
     func toggleFavorite() {
-        FavouritesManager.shared.toggleFavorite(id: characterID, type: .character)
+        guard let charId = Int(self.characterID) else{ return }
+        FavouritesManager.shared.toggleFavorite(id: charId, type: .character)
         isFavorite.toggle()
     }
 }

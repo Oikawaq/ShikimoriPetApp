@@ -44,11 +44,9 @@ final class DetailedViewController: UIViewController {
    
     private func setupBindings(){
 
-        Publishers.CombineLatest4(
+        Publishers.CombineLatest(
             viewModel.$item,
-            viewModel.$authorsRowData,
-            viewModel.$characters,
-            viewModel.$relatedRowData
+            viewModel.$itemInfo
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] _ in
@@ -74,6 +72,13 @@ final class DetailedViewController: UIViewController {
                 guard let self = self else {return}
                 detailView?.tableView.reloadData()
             })
+            .store(in: &cancellables)
+        viewModel.$itemInfo
+            .receive(on: DispatchQueue.main)
+            .sink{[weak self ] _ in
+                guard let self = self else {return}
+                detailView?.tableView.reloadData()
+            }
             .store(in: &cancellables)
     }
     private func setupTableView(){
@@ -148,10 +153,16 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
         case .description:
             let cell = tableView.dequeueReusableCell(withIdentifier: DescriptionCell.identifier) as! DescriptionCell
             cell.configure(with: viewModel.description)
+            cell.onCharacterTapped = {[weak self] id in
+                guard let self = self else {return}
+                let vm = CharacterViewModel(characterId: id)
+                let vc = CharacterViewController(viewModel: vm)
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
             return cell
         case .related:
             let cell = tableView.dequeueReusableCell(withIdentifier: RelatedCell.identifier) as! RelatedCell
-            cell.configure(with: viewModel.relatedRowData)
+            cell.configure(with: viewModel.relatedRowDataTest)
             cell.relatedSectionView.onItemTapped = { [weak self] id, type in
                 guard let self = self else {return}
                     let vm = DetailedViewModel(itemId: id, contentType: type)
@@ -166,11 +177,8 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
             return cell
         case .characters:
             let cell = tableView.dequeueReusableCell(withIdentifier: CharacterCell.identifier) as! CharacterCell
-            let characters = viewModel.characters.map{ characters in
-                let data = characters.character
-                return data
-            }
-            
+
+            let characters = viewModel.characters
             cell.onCharacterTapped = {[weak self] id in
                 guard let self = self else {return}
                 let vm = CharacterViewModel(characterId: id)

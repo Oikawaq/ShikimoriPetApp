@@ -12,7 +12,7 @@ import Combine
 final class SideMenuViewModel{
     
     @Published var type: ContentType
-    @Published var selectedFilters = Filters(page: 1, order: .ranked, kind: nil, status: nil)
+    @Published var selectedFilters = Filters(order: .ranked, kind: nil, status: nil)
     private var statusSection: SideMenuCellModel {
         let statuses: [Status] = switch type {
         case .animes:
@@ -22,7 +22,7 @@ final class SideMenuViewModel{
         }
         return SideMenuCellModel(
             label: L10n.sideMenu.status,
-            filters: statuses.map { Filters(page: 1, status: $0) },
+            filters: statuses.map { Filters( status: $0) },
             type: .status
         )
     }
@@ -30,7 +30,7 @@ final class SideMenuViewModel{
     private var orderSection: SideMenuCellModel {
         SideMenuCellModel(
             label: L10n.sideMenu.sorted,
-            filters: [.ranked, .popularity, .aired_on, .name].map { Filters(page: 1, order: $0) },
+            filters: [.ranked, .popularity, .airedOn, .name].map { Filters( order: $0) },
             type: .order
         )
     }
@@ -43,7 +43,7 @@ final class SideMenuViewModel{
         }
         return SideMenuCellModel(
             label: L10n.sideMenu.type,
-            filters: kinds.map { Filters(page: 1, kind: $0) },
+            filters: kinds.map { Filters(kind: $0) },
             type: .kind
         )
     }
@@ -53,16 +53,8 @@ final class SideMenuViewModel{
         
     }
 
-    private func selectedStatus(_ status: Status?){
-        selectedFilters.status = status
-    }
-    private func selectedOrder(_ order: Order?){
-        selectedFilters.order = order
-    }
-    private func selectedKind(_ kind: Kind?){
-        selectedFilters.kind = kind
-    }
     func toggleFilters(filter: Filters, type: SideMenuCellModelStatusType, isSelected: Bool){
+        print(selectedFilters)
         switch type {
         case .status:
             selectedFilters.status = isSelected ? filter.status : nil
@@ -81,7 +73,7 @@ final class SideMenuViewModel{
         }
     }
     func restoreFilters(){
-        selectedFilters = Filters(page: 1, order: .ranked, kind: nil, status: nil)
+        selectedFilters = Filters(order: .ranked, kind: nil, status: nil)
     }
         //MARK: init
     init(type: ContentType){

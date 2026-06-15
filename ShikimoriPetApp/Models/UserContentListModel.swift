@@ -15,6 +15,12 @@ struct UserContentListModel: Decodable{
     var chapters: Int?
     let volumes: Int?
     let rewatches: Int?
-    let anime: ContentItemModel?
-    let manga: ContentItemModel?
+    let anime: ListItemModel?
+    let manga: ListItemModel?
+}
+struct ListItemModel: Decodable{
+    let id : Int
+    let russian: String
+    let name: String
+    let episodesAired: Int
 }

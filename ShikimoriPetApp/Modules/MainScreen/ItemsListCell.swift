@@ -58,8 +58,8 @@ class ItemsListCell: UICollectionViewCell {
     func configure(with anime: ContentListModel){
         titleLabel.text = anime.russian ?? anime.name
         
-        if let imageUrlString = anime.image.original,
-           let url = URL(string: "https://shikimori.io" + imageUrlString) {
+        if let imageUrlString = anime.image,
+           let url = URL(string: imageUrlString) {
             posterImageView.kf.setImage(
                 with: url,
                 placeholder: UIImage(named: "placeholder"),

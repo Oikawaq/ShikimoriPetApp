@@ -28,7 +28,7 @@ final class ListSectionView: UIView {
     }
     struct RowData: Equatable {
         let title: String
-        let subtitle: String
+        let subtitle: String?
         let imageUrl: String?
         let id: Int?
         let type: ContentType
@@ -39,7 +39,7 @@ final class ListSectionView: UIView {
         data.enumerated().prefix(4).forEach { index, item in
             let row = RowView(
                 name: item.title,
-                role: item.subtitle,
+                role: item.subtitle ?? "",
                 imageUrl: item.imageUrl,
             )
             if let id = item.id {

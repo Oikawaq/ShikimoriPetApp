@@ -66,7 +66,7 @@ extension SideMenuController: UITableViewDelegate, UITableViewDataSource{
                 self.viewModel.toggleFilters(filter: filters, type: type, isSelected: !currentlySelected)
                 tableView.reloadSections(IndexSet(integer: indexPath.section), with: .none)
                 self.delegate?.didApplyFilters(filter: viewModel.selectedFilters)
-                
+                print(viewModel.type)
             }
             return cell
         }

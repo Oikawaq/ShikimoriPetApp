@@ -7,7 +7,7 @@
 
 
 struct UserFriendsModel: Codable, UniversalCellProtocol{
-    var itemId: Int { id ?? 0}
+    var itemId: Int? { id ?? 0}
     
     var cellTitle:String {nickname ?? "Unknown"}
     

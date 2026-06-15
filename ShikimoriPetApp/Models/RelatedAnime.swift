@@ -16,7 +16,9 @@ struct RelatedAnime : Decodable {
 }
 
 struct universalType: Decodable, UniversalCellProtocol {
-    var itemId: Int { id }
+    
+    
+    var itemId: Int? { id }
     
     var cellTitle: String { russian ?? name }
     

@@ -1,5 +1,5 @@
-query GetAnimeList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum) {
-  animes(page: $page, limit: $limit, order: $order) {
+query GetAnimeList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum, $status: AnimeStatusString, $kind: AnimeKindString) {
+  animes(page: $page, limit: $limit, order: $order, status: $status,kind: $kind) {
     id
     name
     russian
@@ -8,4 +8,76 @@ query GetAnimeList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum) {
     originalUrl
 }
   }
+}
+
+query GetMangaList($page: PositiveInt, $limit: PositiveInt, $order: OrderEnum, $status: MangaStatusString, $kind: MangaKindString) {
+  mangas(page: $page, limit: $limit, order: $order, status: $status,kind: $kind) {
+    id
+    name
+    russian
+    score
+    poster {
+    originalUrl
+}
+  }
+}
+
+query GetAnimeInfo($ids : String){
+    animes(ids: $ids){
+    id
+    name
+    russian
+    score
+    kind
+    poster{
+        originalUrl
+    }
+    status
+    episodes
+    episodesAired
+    duration
+    airedOn{
+        year
+    }
+    genres { russian kind}
+    releasedOn{ year }
+    nextEpisodeAt
+    studios{ imageUrl }
+    personRoles{
+      id
+      rolesRu
+      rolesEn
+      person { id name poster { originalUrl } japanese russian isSeyu } }
+    characterRoles {
+      id
+      rolesRu
+      rolesEn
+      character { id name russian poster { originalUrl } }
+    }
+       related {
+      id
+      anime {
+        id
+        name
+        russian
+        poster { originalUrl }
+      }
+      manga {
+        id
+        name
+        russian
+        poster { originalUrl }
+      }
+      relationKind
+      relationText
+    }
+    screenshots { id originalUrl x166Url x332Url }
+    videos { id url name kind playerUrl imageUrl }
+    scoresStats { score count }
+    statusesStats { status count }
+
+    description
+    
+    topic { id }
+}
 }

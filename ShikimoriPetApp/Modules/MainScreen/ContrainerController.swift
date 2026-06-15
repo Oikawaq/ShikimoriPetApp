@@ -126,7 +126,7 @@ extension ContainerController: MainViewControllerDelegate{
         openMenu(!isMenuOpen)
     }
     func switchType(type: ContentType) {
-        mainViewController.viewModel.filters = Filters(page: 1, order: .ranked, kind: nil, status: nil)
+        mainViewController.viewModel.filters = Filters(order: .ranked, kind: nil, status: nil)
         sideMenuController.viewModel.restoreFilters()
         sideMenuController.viewModel.type = type
     }

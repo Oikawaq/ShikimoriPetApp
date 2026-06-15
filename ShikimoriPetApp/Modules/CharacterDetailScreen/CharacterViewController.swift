@@ -33,7 +33,7 @@ final class CharacterViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTableView()
-        viewModel.loadData()
+        viewModel.loadAllData()
         setupBindings()
     }
     private func setupTableView() {
@@ -45,7 +45,7 @@ final class CharacterViewController: UIViewController {
         characterView?.tableView.register(UniversalTableViewWithCollection.self, forCellReuseIdentifier: UniversalTableViewWithCollection.identifier)
     }
     private func setupBindings() {
-        Publishers.CombineLatest(viewModel.$fullCharacterDetails, viewModel.$isFavorite)
+        Publishers.CombineLatest3(viewModel.$isFavorite, viewModel.$fullCharacterDetails, viewModel.$character)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.characterView?.tableView.reloadData()
@@ -81,7 +81,8 @@ extension CharacterViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         case .description:
             let cell = tableView.dequeueReusableCell(withIdentifier: DescriptionCell.identifier, for: indexPath) as! DescriptionCell
-            cell.configure(with: viewModel.description)
+            let string: NSAttributedString = viewModel.description
+            cell.configure(with: string)
             return cell
         case .seyu:
             let cell = tableView.dequeueReusableCell(withIdentifier: UniversalRowDataCell.identifier, for: indexPath) as! UniversalRowDataCell

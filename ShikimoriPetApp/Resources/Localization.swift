@@ -71,7 +71,7 @@ enum L10n {
         }
     }
     enum sideMenuKind: String, CaseIterable{
-        case manga, manhwa, manhua, light_novel, novel, one_shot, doujin,tv,movie,ova,ona,special,tv_special,music,ranobe
+        case manga, manhwa, manhua, light_novel, novel, one_shot, doujin,tv,movie,ova,ona,special,tv_special,music,ranobe,pv,cm
         
         var localized: String {
             switch self {
@@ -91,6 +91,8 @@ enum L10n {
             case .one_shot: return "Ваншот"
             case .doujin: return "Додзинси"
             case .ranobe: return "Ранобэ"
+            case .pv: return "Рекламный видеоролик"
+            case .cm: return "Коммерческое сообщение"
             }
         }
     }

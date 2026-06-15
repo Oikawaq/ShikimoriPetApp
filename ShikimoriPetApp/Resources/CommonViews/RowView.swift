@@ -43,8 +43,18 @@ final class RowView: UIView {
         super.init(frame: .zero)
         nameLabel.text = name
         roleLabel.text = role
-        if let imageUrlString = imageUrl,
-           let url = URL(string: "https://shikimori.io" + imageUrlString) {
+        let baseUrl = "https://shikimori.io"
+        var finalString = ""
+        
+        if let imageUrlTest = imageUrl{
+            if imageUrlTest.hasPrefix("http"){
+                finalString = imageUrlTest
+            } else if imageUrlTest.hasPrefix("/"){
+                finalString = baseUrl + imageUrlTest
+            }
+        }
+        
+           if let url = URL(string: finalString) {
             avatarImageView.kf.setImage(
                 with: url,
                 placeholder: UIImage(named: "placeholder"),

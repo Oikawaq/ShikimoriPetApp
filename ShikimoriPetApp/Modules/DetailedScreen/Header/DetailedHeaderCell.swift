@@ -25,7 +25,7 @@ class DetailedHeaderCell: UITableViewCell {
            let button = UIButton()
            let image = UIImage(systemName: "star")
            button.setImage(image, for: .normal)
-           button.tintColor = .red
+           button.tintColor = .white
            return button
        }()
     private let image : UIImageView = {

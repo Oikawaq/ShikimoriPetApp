@@ -44,12 +44,25 @@ final class UniversalCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    func configure(with: UniversalCellProtocol){
+    func configure(with: any UniversalCellProtocol){
         titleLabel.text = with.cellTitle
-        if let url = with.cellImage {
-                let fullPath = URL(string: ("https://shikimori.io" + url))
-            imageView.kf.setImage(with: fullPath, options: [.backgroundDecode])
+        
+//        if let url = with.cellImage {
+//                let fullPath = URL(string: ("https://shikimori.io" + url))
+//            imageView.kf.setImage(with: fullPath, options: [.backgroundDecode])
+//        }
+        var finalUrl = ""
+        if let urlCheck = with.cellImage{
+            if urlCheck.hasPrefix("http"){
+                finalUrl = with.cellImage ?? ""
+            }else if urlCheck.hasPrefix("/"){
+                finalUrl = "https://shikimori.io" + (with.cellImage ?? "")
+            }
         }
         
+        if let url = with.cellImage{
+            let imageUrl = URL(string: finalUrl)
+            imageView.kf.setImage(with: imageUrl, options: [.backgroundDecode])
+        }
     }
 }

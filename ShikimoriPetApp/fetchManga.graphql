@@ -1,0 +1,54 @@
+query GetMangaInfo($ids : String){
+    mangas(ids: $ids){
+    id
+    name
+    russian
+    score
+    kind
+    poster{
+        originalUrl
+    }
+    status
+    chapters
+    volumes
+    airedOn{
+        year
+    }
+    releasedOn{ year }
+    licensors
+    personRoles{
+      id
+      rolesRu
+      rolesEn
+      person { id name poster { originalUrl } japanese russian isSeyu } }
+    characterRoles {
+      id
+      rolesRu
+      rolesEn
+      character { id name russian poster { originalUrl id } }
+    }
+       related {
+      id
+      anime {
+        id
+        name
+        russian
+        poster { originalUrl }
+      }
+      manga {
+        id
+        name
+        russian
+        poster { originalUrl }
+      }
+      relationKind
+      relationText
+    }
+    scoresStats { score count }
+    statusesStats { status count }
+
+    description
+    genres { russian kind}
+    topic { id }
+}
+}

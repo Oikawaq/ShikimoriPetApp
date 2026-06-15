@@ -9,8 +9,8 @@ import UIKit
 import SnapKit
 
 class CharacterCell: UITableViewCell {
-    var onCharacterTapped: ((Int)->Void)?
-    private var characters: [CharacterModel?] = []
+    var onCharacterTapped: ((String)->Void)?
+    private var characters: [PersonProtocol] = []
     static let identifier: String = "CharacterCell"
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -55,7 +55,7 @@ class CharacterCell: UITableViewCell {
             make.bottom.equalTo(contentView).inset(16)
         }
     }
-    func configure(with data: [CharacterModel?]){
+    func configure(with data: [any PersonProtocol]){
         self.characters = data
     }
 
@@ -67,13 +67,14 @@ extension CharacterCell: UICollectionViewDataSource, UICollectionViewDelegateFlo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: UniversalCollectionViewCell.identifier, for: indexPath) as! UniversalCollectionViewCell
-        let character = characters[indexPath.row]!
+        let character = characters[indexPath.row].person
         cell.configure(with: character)
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let characterId = characters[indexPath.row]?.id else { return }
-        onCharacterTapped?(characterId)
+        guard let characterId = characters[indexPath.row].person.id else { return }
+        print("charId from CharacterCell: \(characterId)")
+        onCharacterTapped?(String(characterId))
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
