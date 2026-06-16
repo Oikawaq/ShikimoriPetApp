@@ -35,8 +35,8 @@ class AuthManager {
         
         let parameters: [String: String] = [
             "grant_type": "refresh_token",
-            "client_id": "hN_xC4we2VXYoVjppayl_RQFw3TcD8RFdOKgbm5Qj-0",
-            "client_secret": "kCxi_iYzPQw1FGGROfNIR2tg0Tj21inJO7EG0qQ3v3U",
+            "client_id": Constants.clientId,
+            "client_secret": Constants.clientSecret,
             "refresh_token": refreshToken
         ]
         
@@ -149,8 +149,8 @@ class AuthManager {
         
         let parameters: [String: String] = [
             "grant_type": "authorization_code",
-            "client_id": "hN_xC4we2VXYoVjppayl_RQFw3TcD8RFdOKgbm5Qj-0",
-            "client_secret": "kCxi_iYzPQw1FGGROfNIR2tg0Tj21inJO7EG0qQ3v3U",
+            "client_id": Constants.clientId,
+            "client_secret": Constants.clientSecret,
             "code": code,
             "redirect_uri": "urn:ietf:wg:oauth:2.0:oob"
         ]

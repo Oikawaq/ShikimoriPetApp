@@ -12,7 +12,12 @@ class CharacterViewModel{
     @Published var character: characterModelGraphQL? = nil
     @Published var isFavorite: Bool = false
     @Published var fullCharacterDetails: CharacterDetailModel?
+    @Published var comments: [CommentsModel] = []
+    @Published var canLoadMore: Bool = false
+    var page: Int = 1
     var cancellables: Set<AnyCancellable> = []
+    private var topicId: Int = 0
+    private var rawComments: [CommentsModel] = []
 
     init(characterId: String) {
         self.characterID = characterId
@@ -24,6 +29,7 @@ class CharacterViewModel{
             case .seyu: return seyu.count > 0
             case .anime: return animesListCount > 0
             case .manga: return mangasListCount > 0
+            case .comments: return true
             default: return true
             }
         }
@@ -70,16 +76,63 @@ class CharacterViewModel{
         loadFullData()
         Task{
             await loadData()
+            loadComments()
         }
     }
-    private func loadData() async{
-        do{
+
+    func moreComments() {
+        page += 1
+        loadComments()
+    }
+
+    private func loadComments() {
+        guard topicId > 0 else {
+            print("[CharacterVM] loadComments: topicId is 0, skipping")
+            return
+        }
+        print("[CharacterVM] loadComments topicId=\(topicId) page=\(page)")
+        CommentService.shared.loadComments(id: topicId, page: page, type: .topic)
+            .receive(on: DispatchQueue.main)
+            .sink { completion in
+                if case .failure(let error) = completion {
+                    print("[CharacterVM] loadComments error: \(error)")
+                }
+            } receiveValue: { [weak self] newComments in
+                guard let self else { return }
+                print("[CharacterVM] loadComments got \(newComments.count) comments")
+                let combined = rawComments + newComments
+                var seen = Set<Int>()
+                let unique = combined.filter { seen.insert($0.id).inserted }
+                rawComments = unique
+                self.comments = CommentService.shared.filter(unique: unique)
+                self.canLoadMore = unique.count < 10 ? false : true
+            }
+            .store(in: &cancellables)
+    }
+
+    func sendComment(body: String, replyToId: Int? = nil) {
+        guard topicId > 0 else { return }
+        CommentService.shared.sendComment(body: body, commentableId: topicId, commentableType: .topic, replyToId: replyToId)
+            .catch { _ in Empty<CommentsModel, Never>() }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newComment in
+                guard let self else { return }
+                rawComments.insert(newComment, at: 0)
+                let processed = CommentService.shared.filter(unique: [newComment])
+                self.comments.insert(contentsOf: processed, at: 0)
+            }
+            .store(in: &cancellables)
+    }
+    private func loadData() async {
+        do {
             let response = try await ApolloService.shared.client.fetch(query: getCharacter(ids: .some(self.characterID)))
-            character = response.data?.characters.first
-        }catch{
+            let char = response.data?.characters.first
+            character = char
+            topicId = Int(char?.topic?.id ?? "0") ?? 0
+            print("[CharacterVM] topicId=\(topicId)")
+        } catch {
             print(error)
         }
-        
     }
     private func setupFavoritesBinding() {
         FavouritesManager.shared.$isLoaded

@@ -15,6 +15,7 @@ class ProfileViewModel {
     @Published var profileData: ProfileUserModel?
     @Published var comments: [CommentsModel] = []
     @Published var commentsCOunt: Int = 0
+    private var rawComments: [CommentsModel] = []
     @Published var canLoadMore: Bool = false
     var newComments: [CommentsModel] = []
     var allComments: [CommentsModel]{
@@ -128,18 +129,29 @@ class ProfileViewModel {
         loadComments()
     }
 
+    func sendComment(body: String, replyToId: Int? = nil) {
+        CommentService.shared.sendComment(body: body, commentableId: userId, commentableType: .user, replyToId: replyToId)
+            .catch { _ in Empty<CommentsModel, Never>() }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newComment in
+                guard let self else { return }
+                rawComments.insert(newComment, at: 0)
+                let processed = CommentService.shared.filter(unique: [newComment])
+                self.comments.insert(contentsOf: processed, at: 0)
+            }
+            .store(in: &cancellabels)
+    }
+
     private func loadComments(){
         CommentService.shared.loadComments(id: userId, page: page, type: .user)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: {_ in }, receiveValue: {[weak self ] (newComment: [CommentsModel]) in
                 guard let self = self else {return}
-                
-                let combined:[CommentsModel] = self.comments + newComment
+                let combined = rawComments + newComment
                 var seen = Set<Int>()
-                let unique = combined.filter{
-                    seen.insert($0.id).inserted
-                }
+                let unique = combined.filter { seen.insert($0.id).inserted }
+                rawComments = unique
                 self.comments = CommentService.shared.filter(unique: unique)
                 self.canLoadMore = unique.count < 10 ? false: true
             })

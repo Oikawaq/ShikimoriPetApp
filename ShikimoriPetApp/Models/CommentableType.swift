@@ -10,14 +10,16 @@ import Foundation
 enum CommentableType: String{
     case user
     case topic
-    
+    case character
+
     var apiPath: String{
         switch self{
-            
         case .user:
             return "User"
         case .topic:
             return "Topic"
+        case .character:
+            return "Character"
         }
     }
 }

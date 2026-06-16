@@ -28,6 +28,7 @@ enum ShikimoriEndpoint {
     case userRatesList(id: Int,limit: Int = 5000,type: ContentType)
     case search(limit:Int = 50, query: String, contentType: ContentType, order: String = "ranked")
     case comments(id: Int, page: Int, commentableType: CommentableType)
+    case postComment
     case findTopicId(linkedId: Int)
     var url: URL? {
         var components = URLComponents(string: "https://shikimori.io/api")
@@ -114,6 +115,8 @@ enum ShikimoriEndpoint {
                 URLQueryItem(name: "limit", value: "10"),
                 URLQueryItem(name: "page", value: "\(page)"),
             ]
+        case .postComment:
+            components?.path += "/comments"
         case .findTopicId(linkedId: let linkedId):
             components?.path += "/topics"
             components?.queryItems = [

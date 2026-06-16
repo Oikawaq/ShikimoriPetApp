@@ -6,4 +6,5 @@ enum CharacterSections: Int, CaseIterable{
     case seyu
     case anime
     case manga
+    case comments
 }

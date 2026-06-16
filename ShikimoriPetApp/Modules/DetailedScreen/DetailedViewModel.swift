@@ -25,6 +25,7 @@ class DetailedViewModel{
     @Published var isLoading: Bool = false
     @Published var isFavorite: Bool = false
     @Published var comments: [CommentsModel] = []
+    private var rawComments: [CommentsModel] = []
     @Published var topics: [TopicsModel] = []
     @Published var itemInfo: [animeModel] = []
     private var cancellables = Set<AnyCancellable>()
@@ -128,7 +129,7 @@ class DetailedViewModel{
     //MARK: init
     init(contentList: ContentListModel, contentType: ContentType) {
         self.contentList = contentList
-        self.itemsId = Int(contentList.id)!
+        self.itemsId = Int(contentList.id) ?? 0
         self.type = contentType
         setupFavoritesBinding()
     }
@@ -505,11 +506,10 @@ class DetailedViewModel{
             .sink(receiveCompletion: {_ in }, receiveValue: {[weak self ] (newComment: [CommentsModel]) in
                 guard let self = self else {return}
                 
-                let combined:[CommentsModel] = self.comments + newComment
+                let combined = rawComments + newComment
                 var seen = Set<Int>()
-                let unique = combined.filter{
-                    seen.insert($0.id).inserted
-                }
+                let unique = combined.filter { seen.insert($0.id).inserted }
+                rawComments = unique
                 self.comments = CommentService.shared.filter(unique: unique)
                 self.canLoadMore = unique.count < 10 ? false: true
             })
@@ -519,7 +519,20 @@ class DetailedViewModel{
         page += 1
         loadComments()
     }
-    
+
+    func sendComment(body: String, replyToId: Int? = nil) {
+        CommentService.shared.sendComment(body: body, commentableId: topicId, commentableType: .topic, replyToId: replyToId)
+            .catch { _ in Empty<CommentsModel, Never>() }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newComment in
+                guard let self else { return }
+                rawComments.insert(newComment, at: 0)
+                let processed = CommentService.shared.filter(unique: [newComment])
+                self.comments.insert(contentsOf: processed, at: 0)
+            }
+            .store(in: &cancellables)
+    }
+
     func toggleFavorite() {
         FavouritesManager.shared.toggleFavorite(id: itemsId, type: setFavoriteType())
         isFavorite.toggle()

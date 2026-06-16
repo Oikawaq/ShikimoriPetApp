@@ -1,27 +1,25 @@
-//
-//  CommentsFooter.swift
-//  ShikimoriPetApp
-//
-//  Created by Иван Илькив on 5/13/26.
-//
-
 import UIKit
 import SnapKit
 
-class CommentsFooter: UITableViewHeaderFooterView {
-    static let identifier: String = "CommentsFooter"
+class CommentInputCell: UITableViewCell {
+    static let identifier = "CommentInputCell"
 
     var onSend: ((String, Int?) -> Void)?
     var onCancelReply: (() -> Void)?
+    var onHeightChanged: (() -> Void)?
 
     private var replyToId: Int?
 
     // Reply banner
-    private let replyBanner: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemBlue.withAlphaComponent(0.08)
-        view.isHidden = true
-        return view
+    private let replyBanner: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.alignment = .center
+        stack.spacing = 8
+        stack.isHidden = true
+        stack.layoutMargins = UIEdgeInsets(top: 0, left: 14, bottom: 0, right: 12)
+        stack.isLayoutMarginsRelativeArrangement = true
+        return stack
     }()
 
     private let replyIndicator: UIView = {
@@ -35,6 +33,7 @@ class CommentsFooter: UITableViewHeaderFooterView {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .systemBlue
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -48,7 +47,6 @@ class CommentsFooter: UITableViewHeaderFooterView {
     // Input row
     private let inputContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = .bubbleBackground
         return view
     }()
 
@@ -67,7 +65,7 @@ class CommentsFooter: UITableViewHeaderFooterView {
         let button = UIButton(type: .system)
         let config = UIImage.SymbolConfiguration(pointSize: 18, weight: .semibold)
         button.setImage(UIImage(systemName: "arrow.up.circle.fill", withConfiguration: config), for: .normal)
-        button.tintColor = .systemBlue
+        button.tintColor = .systemBlue.withAlphaComponent(0.3)
         button.isEnabled = false
         return button
     }()
@@ -78,55 +76,51 @@ class CommentsFooter: UITableViewHeaderFooterView {
         return view
     }()
 
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
+    private let outerStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 0
+        return stack
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
         setupTargets()
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError()
     }
 
     private func setupUI() {
+        selectionStyle = .none
+        backgroundColor = .bubbleBackground
         contentView.backgroundColor = .bubbleBackground
 
-        // Reply banner
-        replyBanner.addSubview(replyIndicator)
-        replyBanner.addSubview(replyLabel)
-        replyBanner.addSubview(cancelReplyButton)
-
+        // Reply banner subviews
         replyIndicator.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(14)
-            make.centerY.equalToSuperview()
             make.width.equalTo(3)
             make.height.equalTo(16)
         }
-        replyLabel.snp.makeConstraints { make in
-            make.leading.equalTo(replyIndicator.snp.trailing).offset(8)
-            make.centerY.equalToSuperview()
-            make.trailing.equalTo(cancelReplyButton.snp.leading).offset(-8)
-        }
+        replyBanner.addArrangedSubview(replyIndicator)
+        replyBanner.addArrangedSubview(replyLabel)
+        replyBanner.addArrangedSubview(cancelReplyButton)
         cancelReplyButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(12)
-            make.centerY.equalToSuperview()
             make.width.height.equalTo(28)
         }
         replyBanner.snp.makeConstraints { make in
             make.height.equalTo(32)
         }
 
-        // Divider
+        // Input row
         inputContainer.addSubview(divider)
         divider.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             make.height.equalTo(0.5)
         }
-
-        // Input row inside container
         inputContainer.addSubview(textField)
         inputContainer.addSubview(sendButton)
-
         sendButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(12)
             make.centerY.equalToSuperview()
@@ -141,11 +135,8 @@ class CommentsFooter: UITableViewHeaderFooterView {
             make.height.equalTo(48)
         }
 
-        // Outer stack
-        let outerStack = UIStackView(arrangedSubviews: [replyBanner, inputContainer])
-        outerStack.axis = .vertical
-        outerStack.spacing = 0
-
+        outerStack.addArrangedSubview(replyBanner)
+        outerStack.addArrangedSubview(inputContainer)
         contentView.addSubview(outerStack)
         outerStack.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -163,6 +154,7 @@ class CommentsFooter: UITableViewHeaderFooterView {
         replyToId = commentId
         replyLabel.text = "Ответ для @\(nickname)"
         replyBanner.isHidden = false
+        onHeightChanged?()
         textField.becomeFirstResponder()
     }
 
@@ -170,6 +162,7 @@ class CommentsFooter: UITableViewHeaderFooterView {
         replyToId = nil
         replyLabel.text = nil
         replyBanner.isHidden = true
+        onHeightChanged?()
     }
 
     func focusInput() {
@@ -197,7 +190,7 @@ class CommentsFooter: UITableViewHeaderFooterView {
     }
 }
 
-extension CommentsFooter: UITextFieldDelegate {
+extension CommentInputCell: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         didTapSend()
         return true

@@ -62,8 +62,10 @@ final class NetworkManager {
 
                  URLSession.shared.dataTask(with: request) { _, _, error in
                      if let error = error {
-                         print(error)
+                         promise(.failure(.badData))
+                         return
                      }
+                     promise(.success(()))
                  }.resume()
              }
          }.eraseToAnyPublisher()

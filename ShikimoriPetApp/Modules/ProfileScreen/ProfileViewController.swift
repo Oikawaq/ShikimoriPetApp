@@ -12,6 +12,7 @@ import Combine
 class ProfileViewController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private let viewModel: ProfileViewModel
+    private weak var commentInputCell: CommentInputCell?
     private var profileView: ProfileView?{
         view as? ProfileView
     }
@@ -47,7 +48,7 @@ class ProfileViewController: UIViewController {
         profileView?.tableView.register(FavoriteTableCell.self, forCellReuseIdentifier: FavoriteTableCell.identifier)
         profileView?.tableView.register(UniversalCommentsCell.self, forCellReuseIdentifier: UniversalCommentsCell.identifier)
         profileView?.tableView.register(CommentsHeader.self, forCellReuseIdentifier: CommentsHeader.identifier)
-        profileView?.tableView.register(CommentsFooter.self, forHeaderFooterViewReuseIdentifier: CommentsFooter.identifier)
+        profileView?.tableView.register(CommentInputCell.self, forCellReuseIdentifier: CommentInputCell.identifier)
         profileView?.tableView.rowHeight = UITableView.automaticDimension
     }
     private func setupBindings(){
@@ -74,24 +75,13 @@ class ProfileViewController: UIViewController {
 extension ProfileViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if viewModel.numberOfSections[section] == .comments{
-            return viewModel.comments.count + 1
+            return viewModel.comments.count + 2
         }else{
             return 1
         }
     }
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfSections.count
-    }
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let footer = tableView.dequeueReusableHeaderFooterView(withIdentifier: CommentsFooter.identifier)
-        let currentSection = viewModel.numberOfSections[section]
-        guard currentSection == .comments else {return nil}
-        return footer
-    }
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        let currentSection = viewModel.numberOfSections[section]
-        guard currentSection == .comments else {return 0}
-        return 40
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch viewModel.numberOfSections[indexPath.section] {
@@ -148,35 +138,66 @@ extension ProfileViewController: UITableViewDelegate, UITableViewDataSource{
             }
             return cell
         case .comments:
-            
-            if indexPath.row == 0{
+            let lastRow = viewModel.comments.count + 1
+            if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: CommentsHeader.identifier, for: indexPath) as! CommentsHeader
                 cell.configure(canLoadMore: viewModel.canLoadMore)
-                cell.onShowAllButtonTapped = {[weak self ] in
-                    guard let self = self else {return}
-                    self.viewModel.moreComments()
+                cell.onShowAllButtonTapped = { [weak self] in
+                    self?.viewModel.moreComments()
                 }
                 return cell
-            }else{
-                
+            } else if indexPath.row == lastRow {
+                let cell = tableView.dequeueReusableCell(withIdentifier: CommentInputCell.identifier, for: indexPath) as! CommentInputCell
+                commentInputCell = cell
+                cell.onSend = { [weak self] text, replyToId in
+                    self?.viewModel.sendComment(body: text, replyToId: replyToId)
+                }
+                cell.onCancelReply = {}
+                cell.onHeightChanged = { [weak tableView] in
+                    tableView?.beginUpdates()
+                    tableView?.endUpdates()
+                }
+                return cell
+            } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: UniversalCommentsCell.identifier, for: indexPath) as! UniversalCommentsCell
                 let data = viewModel.comments.reversed()[indexPath.row - 1]
                 cell.configure(with: data)
-                cell.isUserTapped = {[weak self] id in
-                    guard let self = self else {return}
+                cell.isUserTapped = { [weak self] id in
+                    guard let self = self else { return }
                     let vm = ProfileViewModel(userId: id)
                     let vc = ProfileViewController(viewModel: vm)
                     self.navigationController?.pushViewController(vc, animated: true)
-                    
                 }
-                cell.isImageTapped = {[weak self] array in
-                    guard let self = self else {return}
-                    let vc = FullScreenImagesVC(urls: array, startIndex: 0)
+                cell.isImageTapped = { [weak self] array, index in
+                    guard let self = self else { return }
+                    let vc = FullScreenImagesVC(urls: array, startIndex: index)
                     vc.modalPresentationStyle = .overFullScreen
                     vc.modalTransitionStyle = .crossDissolve
                     present(vc, animated: true)
                 }
-                
+                cell.onSpoilerToggle = { [weak tableView] in
+                    tableView?.beginUpdates()
+                    tableView?.endUpdates()
+                }
+                cell.onYoutubeTapped = { videoId in
+                    let appUrl = URL(string: "youtube://\(videoId)")!
+                    let webUrl = URL(string: "https://www.youtube.com/watch?v=\(videoId)")!
+                    if UIApplication.shared.canOpenURL(appUrl) {
+                        UIApplication.shared.open(appUrl)
+                    } else {
+                        UIApplication.shared.open(webUrl)
+                    }
+                }
+                cell.onReplyTapped = { [weak self] commentId, nickname in
+                    guard let self else { return }
+                    if let section = self.viewModel.numberOfSections.firstIndex(of: .comments) {
+                        let inputRow = IndexPath(row: self.viewModel.comments.count + 1, section: section)
+                        self.profileView?.tableView.scrollToRow(at: inputRow, at: .bottom, animated: true)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            self.commentInputCell?.setReply(to: nickname, commentId: commentId)
+                        }
+                    }
+                }
                 return cell
             }
         }

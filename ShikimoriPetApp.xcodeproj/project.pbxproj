@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4249E8BB2FBEFC4200A59F22 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = 4249E8BA2FBEFC4200A59F22 /* Apollo */; };
 		4249E8BD2FBEFC4200A59F22 /* ApolloAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 4249E8BC2FBEFC4200A59F22 /* ApolloAPI */; };
+		427EF40E2FDFDF53009414B9 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 427EF40D2FDFDF53009414B9 /* Secrets.xcconfig */; };
 		42DAF8A82F5EA92A0059B01B /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8A72F5EA92A0059B01B /* Kingfisher */; };
 		42DAF8AB2F5EA9360059B01B /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 42DAF8AA2F5EA9360059B01B /* SnapKit */; };
 /* End PBXBuildFile section */
@@ -31,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		427EF40D2FDFDF53009414B9 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		4284A6352F0A8F1E007DBB31 /* ShikimoriPetApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShikimoriPetApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4284A64B2F0A8F20007DBB31 /* ShikimoriPetAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShikimoriPetAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4284A6552F0A8F20007DBB31 /* ShikimoriPetAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShikimoriPetAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +101,7 @@
 		4284A62C2F0A8F1E007DBB31 = {
 			isa = PBXGroup;
 			children = (
+				427EF40D2FDFDF53009414B9 /* Secrets.xcconfig */,
 				4284A6372F0A8F1E007DBB31 /* ShikimoriPetApp */,
 				4284A64E2F0A8F20007DBB31 /* ShikimoriPetAppTests */,
 				4284A6582F0A8F20007DBB31 /* ShikimoriPetAppUITests */,
@@ -245,6 +248,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				427EF40E2FDFDF53009414B9 /* Secrets.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,6 +380,7 @@
 		};
 		4284A6612F0A8F20007DBB31 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 427EF40D2FDFDF53009414B9 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -440,6 +445,7 @@
 		};
 		4284A6622F0A8F20007DBB31 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 427EF40D2FDFDF53009414B9 /* Secrets.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

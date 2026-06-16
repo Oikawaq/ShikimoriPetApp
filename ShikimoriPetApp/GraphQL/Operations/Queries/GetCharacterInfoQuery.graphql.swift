@@ -9,7 +9,7 @@ extension ShikimoriSchema {
     static let operationName: String = "GetCharacterInfo"
     static let operationDocument: ApolloAPI.OperationDocument = .init(
       definition: .init(
-        #"query GetCharacterInfo($ids: String) { characters(ids: $ids) { __typename id name russian japanese isAnime isManga isRanobe poster { __typename originalUrl } description } }"#
+        #"query GetCharacterInfo($ids: String) { characters(ids: $ids) { __typename id name russian japanese isAnime isManga isRanobe poster { __typename originalUrl } description topic { __typename id } } }"#
       ))
 
     public var ids: GraphQLNullable<String>
@@ -53,6 +53,7 @@ extension ShikimoriSchema {
           .field("isRanobe", Bool.self),
           .field("poster", Poster?.self),
           .field("description", String?.self),
+          .field("topic", Topic?.self),
         ] }
         static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
           GetCharacterInfoQuery.Data.Character.self
@@ -67,6 +68,7 @@ extension ShikimoriSchema {
         var isRanobe: Bool { __data["isRanobe"] }
         var poster: Poster? { __data["poster"] }
         var description: String? { __data["description"] }
+        var topic: Topic? { __data["topic"] }
 
         /// Character.Poster
         ///
@@ -85,6 +87,25 @@ extension ShikimoriSchema {
           ] }
 
           var originalUrl: String { __data["originalUrl"] }
+        }
+
+        /// Character.Topic
+        ///
+        /// Parent Type: `Topic`
+        nonisolated struct Topic: ShikimoriSchema.SelectionSet {
+          let __data: DataDict
+          init(_dataDict: DataDict) { __data = _dataDict }
+
+          static var __parentType: any ApolloAPI.ParentType { ShikimoriSchema.Objects.Topic }
+          static var __selections: [ApolloAPI.Selection] { [
+            .field("__typename", String.self),
+            .field("id", ShikimoriSchema.ID?.self),
+          ] }
+          static var __fulfilledFragments: [any ApolloAPI.SelectionSet.Type] { [
+            GetCharacterInfoQuery.Data.Character.Topic.self
+          ] }
+
+          var id: ShikimoriSchema.ID? { __data["id"] }
         }
       }
     }

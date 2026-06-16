@@ -22,7 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
         self.window?.makeKeyAndVisible()
-        
+        print("clientId:", Bundle.main.object(forInfoDictionaryKey: "ShikimoriClientId") ?? "NIL")
+        print("clientSecret:", Bundle.main.object(forInfoDictionaryKey: "ShikimoriClientSecret") ?? "NIL")
         
     }
     func checkAuthenticationStatus() {

@@ -13,8 +13,11 @@ struct CommentsModel: Decodable {
     var body: String
     var htmlBody: String
     let user: UserCommentModel
-    var image: String?
     var replyTo: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, userId, body, htmlBody, user
+    }
 }
 
 struct UserCommentModel: Decodable{

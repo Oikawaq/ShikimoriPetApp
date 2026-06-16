@@ -14,6 +14,7 @@ import Combine
 final class DetailedViewController: UIViewController {
     private var cancellables: Set<AnyCancellable> = []
     private let viewModel: DetailedViewModel
+    private weak var commentInputCell: CommentInputCell?
     private var detailView: DetailView? {
            view as? DetailView
        }
@@ -94,6 +95,8 @@ final class DetailedViewController: UIViewController {
         detailView?.tableView.register(ScreenshotsTableCell.self, forCellReuseIdentifier: ScreenshotsTableCell.identifier)
         detailView?.tableView.register(UniversalCommentsCell.self, forCellReuseIdentifier: UniversalCommentsCell.identifier)
         detailView?.tableView.register(CommentsHeader.self, forCellReuseIdentifier: CommentsHeader.identifier)
+        detailView?.tableView.register(CommentInputCell.self, forCellReuseIdentifier: CommentInputCell.identifier)
+        detailView?.tableView.rowHeight = UITableView.automaticDimension
     }
 }
 
@@ -103,7 +106,7 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if viewModel.NumberOfSections[section] == .comments{
-            return viewModel.comments.count + 1
+            return viewModel.comments.count + 2
         }else{
             return 1
         }
@@ -201,38 +204,70 @@ extension DetailedViewController: UITableViewDataSource, UITableViewDelegate{
             return cell
         
         case .comments:
-            if indexPath.row == 0{
+            let lastRow = viewModel.comments.count + 1
+            if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: CommentsHeader.identifier, for: indexPath) as! CommentsHeader
                 cell.configure(canLoadMore: viewModel.canLoadMore)
-                cell.onShowAllButtonTapped = {[weak self ] in
-                    guard let self = self else {return}
-                    self.viewModel.moreComments()
+                cell.onShowAllButtonTapped = { [weak self] in
+                    self?.viewModel.moreComments()
                 }
                 return cell
-            }else{
-                
+            } else if indexPath.row == lastRow {
+                let cell = tableView.dequeueReusableCell(withIdentifier: CommentInputCell.identifier, for: indexPath) as! CommentInputCell
+                commentInputCell = cell
+                cell.onSend = { [weak self] text, replyToId in
+                    self?.viewModel.sendComment(body: text, replyToId: replyToId)
+                }
+                cell.onCancelReply = {}
+                cell.onHeightChanged = { [weak tableView] in
+                    tableView?.beginUpdates()
+                    tableView?.endUpdates()
+                }
+                return cell
+            } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: UniversalCommentsCell.identifier, for: indexPath) as! UniversalCommentsCell
                 let data = viewModel.comments.reversed()[indexPath.row - 1]
                 cell.configure(with: data)
-                cell.isUserTapped = {[weak self] id in
-                    guard let self = self else {return}
+                cell.isUserTapped = { [weak self] id in
+                    guard let self = self else { return }
                     let vm = ProfileViewModel(userId: id)
                     let vc = ProfileViewController(viewModel: vm)
                     self.navigationController?.pushViewController(vc, animated: true)
-                    
                 }
-                cell.isImageTapped = {[weak self] array in
-                    guard let self = self else {return}
-                    let vc = FullScreenImagesVC(urls: array, startIndex: 0)
+                cell.isImageTapped = { [weak self] array, index in
+                    guard let self = self else { return }
+                    let vc = FullScreenImagesVC(urls: array, startIndex: index)
                     vc.modalPresentationStyle = .overFullScreen
                     vc.modalTransitionStyle = .crossDissolve
                     present(vc, animated: true)
                 }
-                
+                cell.onSpoilerToggle = { [weak tableView] in
+                    tableView?.beginUpdates()
+                    tableView?.endUpdates()
+                }
+                cell.onYoutubeTapped = { videoId in
+                    let appUrl = URL(string: "youtube://\(videoId)")!
+                    let webUrl = URL(string: "https://www.youtube.com/watch?v=\(videoId)")!
+                    if UIApplication.shared.canOpenURL(appUrl) {
+                        UIApplication.shared.open(appUrl)
+                    } else {
+                        UIApplication.shared.open(webUrl)
+                    }
+                }
+                cell.onReplyTapped = { [weak self] commentId, nickname in
+                    guard let self else { return }
+                    if let section = self.viewModel.NumberOfSections.firstIndex(of: .comments) {
+                        let inputRow = IndexPath(row: self.viewModel.comments.count + 1, section: section)
+                        self.detailView?.tableView.scrollToRow(at: inputRow, at: .bottom, animated: true)
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            self.commentInputCell?.setReply(to: nickname, commentId: commentId)
+                        }
+                    }
+                }
                 return cell
             }
         }
-        
+
     }
     
 }

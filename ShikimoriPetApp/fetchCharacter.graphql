@@ -12,5 +12,6 @@ query GetCharacterInfo($ids: String){
       poster {  originalUrl }
 
       description
+      topic { id }
 }
 }
